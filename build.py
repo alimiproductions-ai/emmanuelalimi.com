@@ -104,3 +104,22 @@ open(f"{OUT}/404.html", "w", encoding="utf-8").write(html)
 if os.path.exists("CNAME"):
     shutil.copy("CNAME", f"{OUT}/CNAME")
 print(len(series), "séries,", sum(len(v) for v in galeries.values()), "images")
+
+
+# Favicon : site/favicon.(png|jpg) si présent, sinon la signature (site/logo), centrée sur fond blanc.
+fav = next((os.path.join("site", f) for f in sorted(os.listdir("site")) if os.path.splitext(f)[0] == "favicon"), None) if os.path.isdir("site") else None
+fav = fav or next((os.path.join("site", f) for f in sorted(os.listdir("site")) if os.path.splitext(f)[0] == "logo"), None) if os.path.isdir("site") else fav
+if fav:
+    im = ImageOps.exif_transpose(Image.open(fav)).convert("RGBA")
+    bbox = im.getbbox()
+    if bbox:
+        im = im.crop(bbox)
+    for size, name in ((32, "favicon-32.png"), (192, "favicon-192.png"), (180, "apple-touch-icon.png")):
+        canvas = Image.new("RGBA", (size, size), (255, 255, 255, 255))
+        pad = max(2, size // 10)
+        c = im.copy()
+        c.thumbnail((size - 2 * pad, size - 2 * pad), Image.LANCZOS)
+        canvas.alpha_composite(c, ((size - c.width) // 2, (size - c.height) // 2))
+        canvas.convert("RGB").save(f"{OUT}/{name}")
+    Image.open(f"{OUT}/favicon-32.png").save(f"{OUT}/favicon.ico")
+    print("favicon depuis", fav)
