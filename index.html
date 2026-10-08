@@ -233,6 +233,8 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;
    à partir des dossiers oeuvres/ et site/ et du fichier contenu.json. */
 const DATA = /*__DATA__*/null;
 const EMAIL = "alimiproductions@gmail.com";
+/* Clé Web3Forms (publique, prévue pour être dans la page) : les messages du formulaire arrivent sur alimiproductions@gmail.com */
+const FORM_KEY = "f9f37b1d-99a7-4094-95ad-4af1eb9db5d0";
 const D = DATA || {series:[],galeries:{},site:{}};
 function src(base, w){ return base ? `${base}-${w>900?1600:800}.webp` : ""; }
 const S = D.site;
@@ -326,8 +328,9 @@ function contactBlock(full){
      <div class="field"><label for="f-subj">Objet</label><select id="f-subj" name="subject">
        <option>Commande personnalisée</option><option>Portrait</option><option>Réservation événement</option><option>Boutique</option><option>Autre</option></select></div>
      <div class="field"><label for="f-msg">Message</label><textarea id="f-msg" name="message" required></textarea></div>
-     <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"><button class="btn" type="submit">Envoyer</button><span class="ok" id="fok" hidden></span></div>
-     <p class="form-note">En cliquant sur Envoyer, votre messagerie s'ouvre avec le message prêt à partir vers ${EMAIL}.</p>
+     <input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" style="display:none" aria-hidden="true">
+     <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"><button class="btn" type="submit" id="fsend">Envoyer</button><span class="ok" id="fok" role="status" hidden></span></div>
+     <p class="form-note">Votre message nous parvient directement. Réponse sous 48 h, à l'adresse e-mail indiquée.</p>
    </form></div></section>`;
 }
 
@@ -378,9 +381,19 @@ function wire(route, coll){
     const ok=document.getElementById("fok");
     if(!f.reportValidity()) return;
     const d=new FormData(f);
-    const body=`${d.get("message")}\n\n${d.get("name")} <${d.get("email")}>`;
-    location.href=`mailto:${EMAIL}?subject=${encodeURIComponent(d.get("subject")+" (site emmanuelalimi.com)")}&body=${encodeURIComponent(body)}`;
-    ok.hidden=false; ok.textContent="Votre messagerie va s'ouvrir avec le message prêt à envoyer.";
+    const btn=document.getElementById("fsend");
+    d.append("access_key",FORM_KEY);
+    d.set("subject",`${d.get("subject")} : message de ${d.get("name")} (emmanuelalimi.com)`);
+    d.append("from_name","Site emmanuelalimi.com");
+    d.append("replyto",d.get("email"));
+    btn.disabled=true; btn.textContent="Envoi…"; ok.hidden=true;
+    fetch("https://api.web3forms.com/submit",{method:"POST",body:d,headers:{Accept:"application/json"}})
+      .then(r=>r.json()).then(j=>{
+        if(!j.success) throw new Error(j.message||"erreur");
+        f.reset(); ok.hidden=false; ok.textContent="Merci, votre message est bien envoyé. Réponse sous 48 h.";
+      }).catch(()=>{
+        ok.hidden=false; ok.textContent=`L'envoi n'a pas abouti. Écrivez-nous directement à ${EMAIL}.`;
+      }).finally(()=>{ btn.disabled=false; btn.textContent="Envoyer"; });
   });
 }
 function selectMail(){const r=document.createRange();r.selectNodeContents(document.getElementById("mailtxt"));const s=getSelection();s.removeAllRanges();s.addRange(r);}
