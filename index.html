@@ -226,94 +226,21 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;
 </div>
 
 <script>
-/* Images: during the move away from Wix they are read from Wix's media server.
-   Once the GitHub workflow has copied them into /img, LOCAL_IMAGES is switched to true. */
-const LOCAL_IMAGES = false;
+/* Les données (séries, œuvres, images du site) sont insérées par build.py
+   à partir des dossiers oeuvres/ et site/ et du fichier contenu.json. */
+const DATA = /*__DATA__*/null;
 const EMAIL = "alimiproductions@gmail.com";
-
-function src(id, w){
-  if (LOCAL_IMAGES){ const base=id.replace(/\.[a-z]+$/i,""); return `img/${base}-${w>900?1600:800}.webp`; }
-  return `https://static.wixstatic.com/media/${id}/v1/fit/w_${w},h_${w},q_85/${encodeURIComponent(id)}`;
-}
-const M = s => "72bb0d_"+s;
-
-const LOGO = M("89f9389d4dd042cfa859b69d9a1d8b9c~mv2_d_1669_2367_s_2.png");
-
-const COLLECTIONS = [
- {slug:"respire", code:"RES", name:"Respire", intro:"La collection Respire : des personnages au trait noir sur fond blanc, une seule couleur pour le cœur. Fishlove, KissLev, Deng, Fly, The LoveSpreader.",
-  cover:M("ffca076cfc2a4d20ba39b3de838f641a~mv2.png"),
-  banners:[
-   [M("807fa3dd050b4123a1365f7f3778e4b4~mv2.png"),"The LoveSpreader"],[M("a7631e6baffe4d7fa8bf82c9ff8ba0ca~mv2.png"),"Fullness"],
-   [M("6917a3ded96c450b82f2b3b648a46d6b~mv2.png"),"Anger Management"],[M("96ffa9a343be476ba0b73a289b4aae02~mv2.png"),"Laugh"],
-   [M("4676eb6acf8747b49b97fcdd4fd9db16~mv2.png"),"Respire"],[M("cf9b550529ae4b3293e64593514637f3~mv2.png"),"Deng"],
-   [M("51a3f7a417564419a3215be2ab130663~mv2.png"),"Fly"],[M("39b810f6e1724afe91cfbf4291700c7d~mv2.png"),"KissLev"],
-   [M("064119ea7fd341e8a901b7dfd36085e2~mv2.png"),"Deng"],[M("f2a1f95c89d045c8a23f175367405ede~mv2.png"),"Fishlove"],
-   [M("2682544ac62a4b6b8e93a9afe24d2a2f~mv2.png"),"Respire"]],
-  works:[
-   [M("82180a8f8a0445b2945a8eeaf9614eaa~mv2.png"),"Fishlove",1024,1024],[M("ffca076cfc2a4d20ba39b3de838f641a~mv2.png"),"Respire",1024,1024],
-   [M("46bd2483db284a3d9e291f9288b3737a~mv2.png"),"KissLev",1024,1024],[M("aa58785ce5694401926b776003448e7b~mv2.png"),"Deng",1024,1024],
-   [M("6c016454f5c54fbdad3a7d7ebcf8a79e~mv2.png"),"Fly",1024,1024],[M("af57bb061fca422b9ea48a168fc6fb2d~mv2.png"),"Respire",1024,1024],
-   [M("c76c1cf707c547739dae63c4bf2c7d4d~mv2.jpg"),"Fullness",1440,1562],[M("5328c72438294917b3b02425ca4e18a2~mv2.jpg"),"The LoveSpreader, Venice Beach",0,0],
-   [M("5143fbc954594683ad8d61535cb47dcf~mv2.jpg"),"",1440,1562],[M("b422f70d6016473c837df5c04ba979d6~mv2.png"),"",1168,1168],
-   [M("aea084146eeb4225b2fd1cebb31daf43~mv2.jpg"),"",0,0],[M("57c07170203c479dbbb9088997b7005c~mv2.png"),"Heartsy",0,0]]},
- {slug:"portraits", code:"POR", name:"Portraits", intro:"Portraits sur commande et figures qui comptent : rabbins, sages, proches. Chaque visage est travaillé à la main, du croquis à l'encadrement.",
-  cover:M("25d915224118414585147ebe67f0e95b~mv2.png"),
-  works:[
-   [M("25d915224118414585147ebe67f0e95b~mv2.png"),"Baba Sali",2000,2000],[M("cedcd71a3820476481af39faad47939a~mv2.jpg"),"Wiesel the Wise",2000,2000],
-   [M("6e5ce94d984041bba5044183077d3924~mv2.jpg"),"Saba Israel",2000,2000],[M("5a5138ed899a4da0a2faecb9581d5cc0~mv2_d_2000_2000_s_2.jpg"),"David",2000,2000],
-   [M("684d083240374c33bab69a9462f5fbdc~mv2_d_2000_2000_s_2.jpg"),"Rav Darji",2000,2000],[M("fa877a72a41d462fb3b791253746d2b8~mv2_d_2000_2000_s_2.jpg"),"Daniel Levi",2000,2000],
-   [M("d64de49471fa4ff6b9929af21eb0ef0f~mv2.png"),"Rabbi Israel on Jean",1132,1132],[M("c76b0a5aa2f04520b558f185e1f16fa7~mv2.png"),"Canapé",1025,1025],
-   [M("f996049e8aea4c8d98c3dfe2ffa0205e~mv2_d_2144_2680_s_2.jpg"),"",2144,2680],[M("f20e4c5b483f44ceaf8265d0277dff6a~mv2.png"),"",1450,1454],
-   [M("b0c4d52a73af42049a9a62d392dc4788~mv2.jpg"),"LYB, Humility (2017)",640,640],[M("632a24516ce5443eb86574c726924e89~mv2.jpg"),"HaSandak (2018)",640,640]]},
- {slug:"spiritualite", code:"SPI", name:"Spiritualité", intro:"Lettres, lumière et prière : des toiles qui cherchent ce qu'il y a derrière l'image.",
-  cover:M("3f99b1fed95a4106b0d54e8e371be9ea~mv2.jpg"),
-  works:[
-   [M("30942d2cc95046598b3aa68ed044621d~mv2.png"),"",1416,1832],[M("3f99b1fed95a4106b0d54e8e371be9ea~mv2.jpg"),"",1991,2500],
-   [M("9d1aa37cd6d1417e80f7214ad303c003~mv2.jpg"),"",1482,2048],[M("bf6e4b1b87744677a3aeb7b6b14dc8a9~mv2.png"),"",1125,1125],
-   [M("f21e36c41f13402687ee1a48ef73d440~mv2.jpg"),"",1536,2048],[M("9ec5372c64f145398dee1ca3e6d6bdc6~mv2.png"),"",3237,3237],
-   [M("402c5369292845beba806b3672b14e93~mv2.jpg"),"",1200,1600],[M("01e8a934a81b44d18817079d354aa714~mv2.jpg"),"Gate 50, III",2000,2000],
-   [M("f6126d1984744be59d2541de261ef7d7~mv2.png"),"",1010,1140],[M("c10eae850f624003aed122b03a986ec8~mv2.png"),"",1884,1888],
-   [M("f20e4c5b483f44ceaf8265d0277dff6a~mv2.png"),"",1450,1454],[M("e1f78d39f02f4b9fb0fa0d79871eef12~mv2.png"),"",1024,1024]]},
- {slug:"pop-art", code:"POP", name:"Pop-Art", intro:"Couleurs franches, icônes détournées, humour : le versant pop du travail d'Alimi.",
-  cover:M("de864eae74da403cb2c9c7d31f608a73~mv2.jpg"),
-  works:[
-   [M("de864eae74da403cb2c9c7d31f608a73~mv2.jpg"),"Casino Girl",2000,2000],[M("b4bde862b3f94b5aa9dffc67eff3d91a~mv2.jpg"),"Gate 50",2000,2000],
-   [M("2f7b92c503034483b7658dc0320f5c4c~mv2_d_2000_2000_s_2.jpg"),"Menahman",2000,2000],[M("2aedba0897724444bd811caea7c4cb59~mv2.jpg"),"",1440,1440],
-   [M("dbb7342c02244c2390f23ddaeb6f3474~mv2.jpg"),"",1440,1440],[M("80ae58a33f6e423ea1098e1cbd217307~mv2.jpg"),"",1440,1440],
-   [M("c10eae850f624003aed122b03a986ec8~mv2.png"),"",1884,1888],[M("d64de49471fa4ff6b9929af21eb0ef0f~mv2.png"),"Rabbi Israel on Jean",1132,1132],
-   [M("c76b0a5aa2f04520b558f185e1f16fa7~mv2.png"),"Canapé",1025,1025],[M("f6126d1984744be59d2541de261ef7d7~mv2.png"),"",1010,1140],
-   [M("f20e4c5b483f44ceaf8265d0277dff6a~mv2.png"),"",1450,1454],[M("e1f78d39f02f4b9fb0fa0d79871eef12~mv2.png"),"",1024,1024]]},
- {slug:"breslev", code:"BRE", name:"Breslev", intro:"Autour de Rabbi Nahman de Breslev et de ceux qui le suivent : visages, phrases et joie.",
-  cover:M("18a0ace63d584466b5dc9f91771efeaf~mv2_d_2000_2000_s_2.jpg"),
-  works:["b4bde862b3f94b5aa9dffc67eff3d91a~mv2.jpg","9c1d8e655f6447c28ef513fa07ddbfc5~mv2.jpg","1c144ad89f334a3e91879c643fcd2e92~mv2.jpg","1cd8f79669c64b50bba05a414dd459c3~mv2.jpg","d20537b85582425a9ea9060abdc5d02c~mv2.jpg","75e875b3782d4a31b67d67ae56abd960~mv2.jpg","2f71d635557f4dd28213fa35a3c67c8d~mv2.jpg","2f7b92c503034483b7658dc0320f5c4c~mv2_d_2000_2000_s_2.jpg","fe05382a92d04e238b57013130df01ee~mv2.jpg","558fa1baa6274b0499963ef9217078a8~mv2.jpg","18a0ace63d584466b5dc9f91771efeaf~mv2_d_2000_2000_s_2.jpg","522461a58b554395b29e37190ebb4af9~mv2_d_2000_2000_s_2.jpg","ccaf342d7eb54199992910bcd6bb23ed~mv2.jpg","d64de49471fa4ff6b9929af21eb0ef0f~mv2.png","c10eae850f624003aed122b03a986ec8~mv2.png","a26d6a4b6d77491285ef28208cf23789~mv2.jpg","b45b5f6d06bb4332ae1fa569bab2b7d1~mv2_d_2000_2000_s_2.jpg","f8a672ffcb53426d8c0a3c9e2a45c5fa~mv2_d_2000_2000_s_2.jpg","ad57d2643ab646ea83007428736fd341~mv2_d_2000_2000_s_2.jpg","b01dad73ef334c06b1837662044847b9~mv2_d_2000_2000_s_2.jpg","49dcf64d634c4ddcbbca217ec308ebb4~mv2_d_2000_2000_s_2.jpg","f20e4c5b483f44ceaf8265d0277dff6a~mv2.png","f6126d1984744be59d2541de261ef7d7~mv2.png","c76b0a5aa2f04520b558f185e1f16fa7~mv2.png"].map(s=>[M(s),"",0,0])}
-];
-
-const GRAPHIC = ["57f64c9ad62f4152a6dab589623b0ad2~mv2.png","326e54f8a1244694b238d22c00af816e~mv2.png","4532d00c7aff43de9b4ca16b5465c34e~mv2.png","177b876d80a047958884fdc35c3ee492~mv2.png","ab840f7ffc3541dba04fd6aa80d528c5~mv2.png","17ac3bfc3e584fc099f772ace7c7f9b2~mv2.png","cb195598e3724c4f9f4bf06d8471ad87~mv2.png","9a1252a9aa3243f0bc7ac894fee97e88~mv2.png","81dcdc4c2cea4c1cba8aac60b4b811be~mv2.png","427803e22554402ab07121fe1910ec4b~mv2.png","eed7bdfadc9643dcbdb41c5b22e95628~mv2.png","0d155fc45baf46c5a5ec0a95dc4117f8~mv2.png","5157072bef2f4d4a84f87df13340fc9e~mv2.png","b73d7fa1cf9b4eafaf4cff3b090e91b0~mv2.png","9bf8771b38704f48a57621bd7ffe3d2e~mv2.png","a66e27fc2f80451b81824d0401b78c3a~mv2.png","bcdf257a20094d9d84297e580bb65b1c~mv2.jpg","d0e6ffc97ae3403e84de34c9bd9898c0~mv2.jpg","3524bbe3921c4479b4906a1ffddb227c~mv2.png","2773d334fdc94b14afa37780a44d321a~mv2.jpg","d1eee1db754d4f45bb36c937f0e8dacd~mv2.jpg","c1003befdf554caab4cc82182f6c06ad~mv2.png","003ac556844e4d2abb216423f8f76d57~mv2.png","dc9864fa186545a2a266765aefa67125~mv2.jpg","1b1fd963109f4dcb9851a763e45c0505~mv2.jpg"].map(s=>[M(s),"",0,0]);
-
-const ATELIER = [[M("6379c878b392466c8cd92b43f89b2866~mv2.png"),"",3024,4032],[M("c60f144c9b6c4aacb534fc463d6f58e1~mv2.png"),"",3024,4032],[M("0cb3a5e47b3844ad81e830ccba42563d~mv2.png"),"",3024,4032]];
-
-const SITUCROIS = {
-  main:M("41cc8d60dadc449c93d8560671b267b6~mv2.jpg"),
-  parts:[
-   ["Blessures dorées","Face aux tragédies du 7 octobre 2023, au sein même de la torpeur, le monde assista à la résilience d'un peuple. Ou comment des vies brisées se lèvent et entament de se reconstruire. Les fissures dorées, empruntées à l'art du kintsugi japonais, magnifient les blessures au lieu de les masquer.",M("f3f8649fa78542b29a42a90caabdf3ad~mv2.png")],
-   ["Guérison","Trois pansements apparaissent, représentant trois guérisons. L'amour, qui soigne les blessures intérieures les plus profondes. La solidarité, symbolisée par la Magen David, qui unit les âmes face à l'adversité. Le retour des otages, qui tente de refermer les plaies d'un peuple meurtri.",M("92f96417c8664d11a9e5ca6a1382c247~mv2.png")],
-   ["Cœurs semés","Les cœurs rouges, germant de la terre où ils sont tombés, incarnent l'espoir et la foi simples, moteurs de toute reconstruction authentique. Trois cœurs oranges évoquent la famille Bibas, symbole d'une plaie encore ouverte. Nouvelle marque d'éternité pour ceux qui croient en la Vie.",M("f9024eee256647919740e665b86b0d59~mv2.png")],
-   ["Croire","La phrase centrale détourne une maxime de Rabbi Nahman d'Ouman. Ici, la destruction disparaît pour laisser place à l'espoir.",M("e1d91eb2c96a42e0b2dc27e418a24d65~mv2.png")],
-   ["Réparer","Ce tableau est un appel à la réparation du monde (Tikoun Olam), une invitation à magnifier nos blessures et à œuvrer pour le bien.",null]]
-};
-
-const PRODUCTS = [
- ["Mordekhay, sur verre Perspex",[M("a259485242de449c8dd9bfe8ef75a0fa~mv2.png"),M("c5d4da466e6142548cd0418e1a0a2663~mv2.png")],"760 $",'999 $'],
- ["Donald Ali",[M("b9e26ec20d48488bbd950fd2f9275acd~mv2.png"),M("085424e60d004160aedf76de49fa6c19~mv2.jpg")],"50 $",null],
- ["Casquette velours « RESPIRE. »",[M("a2a941eb8beb460d90ff9be9eaa02be1~mv2.png"),M("4bdb8d561b5440d98bd3c5ba0a3cf12d~mv2.png")],"59 $",null],
- ["Sweat Joybird, brodé",[M("ed11fba8cd08451280aa8021ac3307c0~mv2.png"),M("ac15f9c36dee4261b61e33e0940101a0~mv2.png")],"85 $",null],
- ["Sac à langer personnalisé",[M("b422f70d6016473c837df5c04ba979d6~mv2.png"),M("9bbddc44fd77432e924e204b4d80520f~mv2.png")],"130 $",null]
-];
-
+const D = DATA || {series:[],galeries:{},site:{}};
+function src(base, w){ return base ? `${base}-${w>900?1600:800}.webp` : ""; }
+const S = D.site;
+const LOGO = S.logo;
+const COLLECTIONS = D.series.map(s=>({slug:s.dossier, code:s.code, name:s.nom, intro:s.intro, cover:s.couverture, banners:s.bannieres, works:s.works}));
+const GRAPHIC = D.galeries["graphic-design"] || [];
+const ATELIER = D.galeries["atelier"] || [];
 const EVENTS = {
-  caricature:{name:"Caricature live",img:M("a103498942ff4f6a8944837620d93376~mv2_d_2000_2000_s_2.jpg"),text:"Alimi croque vos invités en direct, en quelques minutes chacun. Chacun repart avec son portrait.",tags:["Bar / Bat Mitsva","Anniversaire","Mariage"]},
-  painting:{name:"Live painting",img:M("54c6709fd38f44fea091cdb238733ec9~mv2_d_2570_2570_s_4_2.png"),text:"Votre mariage mérite le meilleur. Une toile peinte sur place pendant la soirée, que vous gardez comme mémoire de la journée.",tags:["Mariage","Soirée privée","Entreprise"],
-    gallery:[[M("8a8438cfd6ac42fcaefcca9127e4444e~mv2.jpg"),"",0,0],[M("54c6709fd38f44fea091cdb238733ec9~mv2_d_2570_2570_s_4_2.png"),"",2570,2570],[M("3b1c07a750f741098b7b9760d2069942~mv2_d_3024_3024_s_4_2.png"),"",3024,3024],[M("ec68ed557a6e4f228e4fa8f4ae0cbadf~mv2.png"),"",0,0],[M("fec9ba62e2c146339326769bcf627b16~mv2.png"),"",0,0]]}
+  caricature:{name:"Caricature live",img:S["caricature-live"],text:"Alimi croque vos invités en direct, en quelques minutes chacun. Chacun repart avec son portrait.",tags:["Bar / Bat Mitsva","Anniversaire","Mariage"]},
+  painting:{name:"Live painting",img:S["live-painting"],text:"Votre mariage mérite le meilleur. Une toile peinte sur place pendant la soirée, que vous gardez comme mémoire de la journée.",tags:["Mariage","Soirée privée","Entreprise"],
+    gallery:D.galeries["live-painting"] || []}
 };
 
 /* ---------- rendering ---------- */
@@ -346,22 +273,14 @@ const ROUTES = {
       <h1>Offrez-vous<br>de l'art<em>.</em></h1>
       <div class="hero-row"><p class="lede">Peintre, portraitiste et caricaturiste. Œuvres originales, commandes personnalisées et live painting pour vos événements.</p>
       <a class="btn" href="#collections">Voir les œuvres</a></div>
-      <div class="hero-banner"><img src="${src(COLLECTIONS[0].banners[0][0],1600)}" alt="The LoveSpreader, Respire Collection"></div>
+      ${S.accueil?`<div class="hero-banner"><img src="${src(S.accueil,1600)}" alt="The LoveSpreader, Respire Collection"></div>`:""}
     </div>
     <section class="wrap"><div class="sec-head"><h2>Collections</h2><span class="eyebrow">${COLLECTIONS.length} séries</span></div>${collIndex()}</section>
     <section class="wrap"><div class="sec-head"><h2>À l'atelier</h2><span class="eyebrow">En cours</span></div>${masonry(ATELIER,"")}</section>
     <section class="wrap"><div class="sec-head"><h2>Événements</h2><a class="eyebrow" href="#evenements">Tout voir</a></div>${eventsGrid()}</section>
     ${contactBlock()}`;
   },
-  collections(){ return head("Galerie","Collections","Cinq séries, du trait noir de Respire aux portraits sur commande.")+`<div class="wrap" style="padding-bottom:40px">${collIndex()}</div>`; },
-  // Page « Si tu crois » masquée pour le moment : pour la réactiver, renommer la clé en "si-tu-crois" et remettre le lien du menu
-  "si-tu-crois_off"(){
-    return head("Une œuvre d'Emmanuel Haï Alimi","Si tu crois","Ce tableau célèbre la capacité humaine à se relever et à reconstruire après l'épreuve. Chaque détail, des fissures dorées aux cœurs éparpillés, exprime une réflexion sur la résilience, l'amour et la solidarité.")+
-    `<div class="wrap"><div class="masonry" data-lb style="columns:1"><button class="work" data-i="0"><div class="frame"><img src="${src(SITUCROIS.main,1600)}" alt="Si tu crois"></div></button></div></div>
-    <section class="wrap">${SITUCROIS.parts.map((p,i)=>`<div class="symbol"><div><span class="n">${String(i+1).padStart(2,"0")} / ${String(SITUCROIS.parts.length).padStart(2,"0")}</span><h3>${esc(p[0])}</h3><p>${esc(p[1])}</p>
-      ${i===3?`<blockquote style="margin-top:24px">« Si tu crois qu'on peut détruire, crois qu'on peut réparer. »<cite>D'après Rabbi Nahman d'Ouman</cite></blockquote>`:""}</div>
-      ${p[2]?`<img loading="lazy" src="${src(p[2],1200)}" alt="Détail : ${esc(p[0])}">`:"<div></div>"}</div>`).join("")}</section>`;
-  },
+  collections(){ return head("Galerie","Collections",`${COLLECTIONS.length} séries, du trait noir de Respire aux portraits sur commande.`)+`<div class="wrap" style="padding-bottom:40px">${collIndex()}</div>`; },
   "graphic-design"(){ return head("Studio","Graphic design","Identités, affiches, pochettes et supports imprimés.")+`<div class="wrap">${masonry(GRAPHIC,"GRA")}</div>`; },
   evenements(){
     const p=EVENTS.painting;
@@ -377,7 +296,7 @@ const ROUTES = {
   },
   alimi(){
     return head("Biographie","Qui est Alimi ?","")+`<div class="wrap"><div class="bio">
-      <img class="portrait" src="${src(M("67e89234b3b94f108c82f347b21c68e2~mv2.png"),1200)}" alt="Emmanuel Alimi">
+      <img class="portrait" src="${src(S.portrait,1200)}" alt="Emmanuel Alimi">
       <div><p>Né en France en 1995, Emmanuel quitte son pays natal pour sa Terre Promise, avec une promesse en tête : réussir à partager et faire découvrir son art.</p>
       <p>Artiste coincé dans le corps d'un informaticien, son talent explose à l'âge de 13 ans, où il commence à peindre les petites voix dans sa tête, de Ray Charles à Robert De Niro en passant par Bob Dylan.</p>
       <p>La Pop Culture restant une influence évidente pour Alimi, il décide de s'en détacher et de créer pour créer, une sorte d'échappatoire pour un cerveau en ébullition.</p>
@@ -415,7 +334,7 @@ function render(){
   let html;
   if (coll){
     html = head("","" ,"",coll.name).replace("<h1></h1>",`<h1>${esc(coll.name)}</h1><p class="lede">${esc(coll.intro)}</p>`);
-    if (coll.banners) html += `<div class="wrap"><div class="wide-strip" data-lb>${coll.banners.slice(0,3).map((b,i)=>`<button class="work" data-i="${i}"><div class="frame"><img loading="lazy" src="${src(b[0],1600)}" alt="${esc(b[1])}"></div><figcaption><span>${esc(b[1])}</span><span class="cat">Bannière</span></figcaption></button>`).join("")}</div></div>`;
+    if (coll.banners && coll.banners.length) html += `<div class="wrap"><div class="wide-strip" data-lb>${coll.banners.slice(0,3).map((b,i)=>`<button class="work" data-i="${i}"><div class="frame"><img loading="lazy" src="${src(b[0],1600)}" alt="${esc(b[1])}"></div><figcaption><span>${esc(b[1])}</span><span class="cat">Bannière</span></figcaption></button>`).join("")}</div></div>`;
     html += `<div class="wrap">${masonry(coll.works, coll.code)}</div>`;
     const others = COLLECTIONS.filter(c=>c!==coll);
     html += `<section class="wrap"><div class="sec-head"><h2>Autres séries</h2></div><div class="colls">${others.map(c=>`<a class="coll" href="#${c.slug}"><div class="frame"><img loading="lazy" src="${src(c.cover,800)}" alt="${esc(c.name)}"></div><div class="meta"><h3>${esc(c.name)}</h3><span class="count">${String(c.works.length).padStart(2,"0")} œuvres</span></div></a>`).join("")}</div></section>`;
@@ -442,7 +361,7 @@ function wire(route, coll){
   // lightbox groups: each [data-lb] container is its own sequence
   document.querySelectorAll("[data-lb]").forEach(group=>{
     const items=[...group.querySelectorAll(".work")].map(b=>{const im=b.querySelector("img");return {src:im.currentSrc||im.src, alt:im.alt, cap:b.querySelector("figcaption span")?.textContent||""};});
-    group.querySelectorAll(".work").forEach((b,i)=>b.addEventListener("click",()=>openLB(items.map(x=>({...x,src:x.src.replace(/w_\d+,h_\d+/,"w_1800,h_1800").replace(/-800\.webp$/,"-1600.webp")})),i)));
+    group.querySelectorAll(".work").forEach((b,i)=>b.addEventListener("click",()=>openLB(items.map(x=>({...x,src:x.src.replace(/-800\.webp$/,"-1600.webp")})),i)));
   });
   document.querySelectorAll("[data-subject]").forEach(a=>a.addEventListener("click",()=>{sessionSubject=a.dataset.subject;}));
   const copy=document.getElementById("copyMail");
@@ -479,7 +398,7 @@ lb.addEventListener("touchend",e=>{ if(tx===null)return; const dx=e.changedTouch
 
 /* menu, routing */
 document.getElementById("menuBtn").onclick=e=>{ const n=document.getElementById("nav"); n.classList.toggle("open"); e.currentTarget.setAttribute("aria-expanded",n.classList.contains("open")); };
-document.getElementById("sigimg").src=src(LOGO,200);
+if (LOGO) document.getElementById("sigimg").src=src(LOGO,200);
 document.getElementById("yr").textContent=new Date().getFullYear();
 window.addEventListener("hashchange",()=>{ if(location.hash==="#contact" && sessionSubject && document.getElementById("cform")){ scrollToContact=true; } render(); });
 render();
