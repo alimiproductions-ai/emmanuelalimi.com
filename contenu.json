@@ -1,38 +1,38 @@
 {
   "series": [
     {
-      "dossier": "respire",
       "nom": "Respire",
+      "dossier": "respire",
       "code": "RES",
       "intro": "La collection Respire : des personnages au trait noir sur fond blanc, une seule couleur pour le cœur. Fishlove, KissLev, Deng, Fly, The LoveSpreader.",
       "couverture": "02 Respire.png",
       "bannieres": "respire-bannieres"
     },
     {
-      "dossier": "portraits",
       "nom": "Portraits",
+      "dossier": "portraits",
       "code": "POR",
       "intro": "Portraits sur commande et figures qui comptent : rabbins, sages, proches. Chaque visage est travaillé à la main, du croquis à l'encadrement.",
       "couverture": "01 Baba Sali.png"
     },
     {
-      "dossier": "spiritualite",
       "nom": "Spiritualité",
+      "dossier": "spiritualite",
       "code": "SPI",
       "intro": "Lettres, lumière et prière : des toiles qui cherchent ce qu'il y a derrière l'image.",
       "couverture": "02.jpg"
     },
     {
-      "dossier": "pop-art",
       "nom": "Pop-Art",
+      "dossier": "pop-art",
       "code": "POP",
       "intro": "Couleurs franches, icônes détournées, humour : le versant pop du travail d'Alimi.",
       "couverture": "01 Casino Girl.jpg"
     },
     {
+      "nom": "MeOuman",
       "dossier": "breslev",
-      "nom": "Breslev",
-      "code": "BRE",
+      "code": "OUM",
       "intro": "Autour de Rabbi Nahman de Breslev et de ceux qui le suivent : visages, phrases et joie.",
       "couverture": "11.jpg"
     }
