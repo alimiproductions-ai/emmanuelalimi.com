@@ -1,0 +1,87 @@
+# Interface d'administration Pages CMS (https://app.pagescms.org)
+# Médias : un dossier par série. Le nom du fichier donne l'ordre et le titre,
+# par exemple « 13 Mon tableau.jpg ».
+media:
+  - name: respire
+    label: "Œuvres · Respire"
+    input: oeuvres/respire
+    output: oeuvres/respire
+    categories: [image]
+  - name: portraits
+    label: "Œuvres · Portraits"
+    input: oeuvres/portraits
+    output: oeuvres/portraits
+    categories: [image]
+  - name: spiritualite
+    label: "Œuvres · Spiritualité"
+    input: oeuvres/spiritualite
+    output: oeuvres/spiritualite
+    categories: [image]
+  - name: pop-art
+    label: "Œuvres · Pop-Art"
+    input: oeuvres/pop-art
+    output: oeuvres/pop-art
+    categories: [image]
+  - name: breslev
+    label: "Œuvres · Breslev"
+    input: oeuvres/breslev
+    output: oeuvres/breslev
+    categories: [image]
+  - name: respire-bannieres
+    label: "Bannières · Respire"
+    input: oeuvres/respire-bannieres
+    output: oeuvres/respire-bannieres
+    categories: [image]
+  - name: graphic-design
+    label: "Graphic design"
+    input: oeuvres/graphic-design
+    output: oeuvres/graphic-design
+    categories: [image]
+  - name: atelier
+    label: "Accueil · À l'atelier"
+    input: oeuvres/atelier
+    output: oeuvres/atelier
+    categories: [image]
+  - name: live-painting
+    label: "Événements · Live painting"
+    input: oeuvres/live-painting
+    output: oeuvres/live-painting
+    categories: [image]
+  - name: site
+    label: "Images du site (logo, accueil, portrait, favicon)"
+    input: site
+    output: site
+    categories: [image]
+
+content:
+  - name: series
+    label: Séries
+    type: file
+    path: contenu.json
+    format: json
+    fields:
+      - name: series
+        label: Séries (dans l'ordre d'affichage)
+        type: object
+        list: true
+        fields:
+          - name: nom
+            label: Nom affiché
+            type: string
+            required: true
+          - name: dossier
+            label: Dossier des images (dans oeuvres/)
+            type: string
+            required: true
+          - name: code
+            label: Code catalogue (3 lettres)
+            type: string
+          - name: intro
+            label: Texte de présentation
+            type: text
+          - name: couverture
+            label: Fichier de couverture (nom exact, ex. 01 Baba Sali.png)
+            type: string
+          - name: bannieres
+            label: Dossier des bannières (facultatif)
+            type: string
