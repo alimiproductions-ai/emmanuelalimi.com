@@ -1,6 +1,8 @@
 # Interface d'administration Pages CMS (https://app.pagescms.org)
 # Médias : un dossier par série. Le nom du fichier donne l'ordre et le titre,
 # par exemple « 13 Mon tableau.jpg ».
+# Ne pas changer « input » / « output » : ce sont les dossiers où sont rangées les images.
+# Pour renommer une série, changer seulement « label » ici et « Nom affiché » dans Séries.
 media:
   - name: respire
     label: "Œuvres · Respire"
@@ -22,10 +24,10 @@ media:
     input: oeuvres/pop-art
     output: oeuvres/pop-art
     categories: [image]
-  - name: MeOuman
+  - name: breslev
     label: "Œuvres · MeOuman"
-    input: oeuvres/MeOuman
-    output: oeuvres/Meouman
+    input: oeuvres/breslev
+    output: oeuvres/breslev
     categories: [image]
   - name: respire-bannieres
     label: "Bannières · Respire"
