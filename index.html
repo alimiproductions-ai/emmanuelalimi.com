@@ -145,11 +145,14 @@ blockquote cite{display:block;margin-top:16px;font:400 13px var(--mono);font-sty
 .price{font:500 14px var(--mono);font-variant-numeric:tabular-nums}
 .price s{color:var(--muted);margin-right:8px}
 .price .sale{color:var(--heart)}
+.soon{padding-block:clamp(56px,10vw,140px);display:grid;gap:24px;justify-items:start}
+.soon h1{font-size:clamp(56px,12vw,180px);font-weight:800;line-height:.86;letter-spacing:-.035em;text-transform:uppercase}
 
 /* contact */
-.contact{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(24px,5vw,72px)}
+.contact{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(24px,4vw,56px) clamp(24px,5vw,72px)}
+.contact-head{grid-column:1/-1}
 @media (max-width:820px){.contact{grid-template-columns:1fr}}
-.contact h2{font-size:clamp(40px,7vw,96px);font-weight:800;line-height:.9;text-transform:uppercase;letter-spacing:-.03em}
+.contact h2{font-size:clamp(40px,7vw,96px);overflow-wrap:anywhere;font-weight:800;line-height:.9;text-transform:uppercase;letter-spacing:-.03em}
 .mail-row{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:24px}
 .mail{font:500 clamp(16px,2vw,20px) var(--mono);user-select:all;word-break:break-all}
 .copy{font:500 12px var(--mono);text-transform:uppercase;letter-spacing:.06em;background:var(--panel);border:1px solid var(--line);color:var(--ink);padding:8px 12px;border-radius:999px;cursor:pointer}
@@ -197,7 +200,6 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;
     <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="nav">Menu</button>
     <nav class="nav" id="nav" aria-label="Navigation principale">
       <a href="#collections">Collections</a>
-      <a href="#si-tu-crois">Si tu crois</a>
       <a href="#graphic-design">Graphic design</a>
       <a href="#evenements">Événements</a>
       <a href="#boutique">Boutique</a>
@@ -227,7 +229,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;
 /* Images: during the move away from Wix they are read from Wix's media server.
    Once the GitHub workflow has copied them into /img, LOCAL_IMAGES is switched to true. */
 const LOCAL_IMAGES = false;
-const EMAIL = "emmanuel.alimi@gmail.com";
+const EMAIL = "alimiproductions@gmail.com";
 
 function src(id, w){
   if (LOCAL_IMAGES){ const base=id.replace(/\.[a-z]+$/i,""); return `img/${base}-${w>900?1600:800}.webp`; }
@@ -347,17 +349,13 @@ const ROUTES = {
       <div class="hero-banner"><img src="${src(COLLECTIONS[0].banners[0][0],1600)}" alt="The LoveSpreader, Respire Collection"></div>
     </div>
     <section class="wrap"><div class="sec-head"><h2>Collections</h2><span class="eyebrow">${COLLECTIONS.length} séries</span></div>${collIndex()}</section>
-    <section class="wrap"><div class="split">
-      <img loading="lazy" src="${src(SITUCROIS.main,1600)}" alt="Si tu crois, Emmanuel Haï Alimi">
-      <div><p class="eyebrow">Œuvre à la une</p><h2 style="font-size:clamp(40px,6vw,80px);font-weight:800;line-height:.9;text-transform:uppercase;margin-top:12px">Si tu crois</h2>
-      <p class="lede" style="margin-block:20px 28px">Un tableau sur la capacité à se relever et à reconstruire après l'épreuve : fissures dorées, cœurs semés, trois pansements.</p>
-      <a class="btn ghost" href="#si-tu-crois">Lire la symbolique</a></div></div></section>
     <section class="wrap"><div class="sec-head"><h2>À l'atelier</h2><span class="eyebrow">En cours</span></div>${masonry(ATELIER,"")}</section>
     <section class="wrap"><div class="sec-head"><h2>Événements</h2><a class="eyebrow" href="#evenements">Tout voir</a></div>${eventsGrid()}</section>
     ${contactBlock()}`;
   },
   collections(){ return head("Galerie","Collections","Cinq séries, du trait noir de Respire aux portraits sur commande.")+`<div class="wrap" style="padding-bottom:40px">${collIndex()}</div>`; },
-  "si-tu-crois"(){
+  // Page « Si tu crois » masquée pour le moment : pour la réactiver, renommer la clé en "si-tu-crois" et remettre le lien du menu
+  "si-tu-crois_off"(){
     return head("Une œuvre d'Emmanuel Haï Alimi","Si tu crois","Ce tableau célèbre la capacité humaine à se relever et à reconstruire après l'épreuve. Chaque détail, des fissures dorées aux cœurs éparpillés, exprime une réflexion sur la résilience, l'amour et la solidarité.")+
     `<div class="wrap"><div class="masonry" data-lb style="columns:1"><button class="work" data-i="0"><div class="frame"><img src="${src(SITUCROIS.main,1600)}" alt="Si tu crois"></div></button></div></div>
     <section class="wrap">${SITUCROIS.parts.map((p,i)=>`<div class="symbol"><div><span class="n">${String(i+1).padStart(2,"0")} / ${String(SITUCROIS.parts.length).padStart(2,"0")}</span><h3>${esc(p[0])}</h3><p>${esc(p[1])}</p>
@@ -373,10 +371,9 @@ const ROUTES = {
     <div class="wrap"><a class="btn" href="#contact" data-subject="Réservation événement">Réserver une date</a></div>`;
   },
   boutique(){
-    return head("Commande directe","Boutique","Pour commander, envoyez un message avec le nom de la pièce : réponse sous 48 h, paiement et livraison convenus ensemble.")+
-    `<div class="wrap"><div class="products">${PRODUCTS.map(p=>`<article class="product"><div class="frame"><img loading="lazy" src="${src(p[1][0],800)}" alt="${esc(p[0])}"><img loading="lazy" src="${src(p[1][1],800)}" alt="" aria-hidden="true"></div>
-      <h3>${esc(p[0])}</h3><p class="price" style="margin:0">${p[3]?`<s>${p[3]}</s><span class="sale">${p[2]}</span>`:p[2]}</p>
-      <a class="btn ghost" href="#contact" data-subject="Commande : ${esc(p[0])}">Commander</a></article>`).join("")}</div></div>`;
+    return `<div class="wrap soon reveal"><p class="eyebrow">Boutique</p><h1>Coming<br>soon<span class="heart">.</span></h1>
+    <p class="lede">La boutique en ligne arrive bientôt. En attendant, pour une œuvre ou une commande personnalisée, écrivez-nous.</p>
+    <a class="btn" href="#contact" data-subject="Boutique">Nous écrire</a></div>`;
   },
   alimi(){
     return head("Biographie","Qui est Alimi ?","")+`<div class="wrap"><div class="bio">
@@ -397,8 +394,8 @@ function eventsGrid(){
 }
 function contactBlock(full){
   return `<section class="wrap" id="contact-sec"><div class="contact">
-   <div><p class="eyebrow">Commandes, tarifs, événements</p><h2 style="margin-top:12px">Contact<span class="heart">♥</span></h2>
-     <p class="lede" style="margin-top:20px">Vous désirez passer une commande personnalisée ou connaître les tarifs ? Écrivez-nous, réponse sous 48 h.</p>
+   <div class="contact-head"><p class="eyebrow">Commandes, tarifs, événements</p><h2 style="margin-top:12px">Contact<span class="heart">♥</span></h2></div>
+   <div><p class="lede" style="margin-top:0">Vous désirez passer une commande personnalisée ou connaître les tarifs ? Écrivez-nous, réponse sous 48 h.</p>
      <div class="mail-row"><span class="mail" id="mailtxt">${EMAIL}</span><button class="copy" id="copyMail" type="button">Copier</button></div>
      <div class="socials"><a href="https://www.instagram.com/alimi_art/" target="_blank" rel="noopener">Instagram @alimi_art</a><a href="https://www.facebook.com/alimiarts" target="_blank" rel="noopener">Facebook</a></div></div>
    <form id="cform" novalidate>
@@ -408,7 +405,7 @@ function contactBlock(full){
        <option>Commande personnalisée</option><option>Portrait</option><option>Réservation événement</option><option>Boutique</option><option>Autre</option></select></div>
      <div class="field"><label for="f-msg">Message</label><textarea id="f-msg" name="message" required></textarea></div>
      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"><button class="btn" type="submit">Envoyer</button><span class="ok" id="fok" hidden></span></div>
-     <p class="form-note">Le message s'ouvre dans votre messagerie, prêt à envoyer à ${EMAIL}.</p>
+     <p class="form-note">En cliquant sur Envoyer, votre messagerie s'ouvre avec le message prêt à partir vers ${EMAIL}.</p>
    </form></div></section>`;
 }
 
