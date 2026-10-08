@@ -1,0 +1,61 @@
+name: Renommer un dossier d'œuvres
+
+# Renomme oeuvres/<ancien> en oeuvres/<nouveau> et met à jour contenu.json
+# et .pages.yml, puis republie le site. À lancer depuis l'onglet Actions.
+on:
+  workflow_dispatch:
+    inputs:
+      ancien:
+        description: "Nom actuel du dossier (ex. breslev)"
+        required: true
+      nouveau:
+        description: "Nouveau nom du dossier, en minuscules sans espace (ex. meouman)"
+        required: true
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  renommer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Renommer et mettre à jour les références
+        env:
+          ANCIEN: ${{ inputs.ancien }}
+          NOUVEAU: ${{ inputs.nouveau }}
+        run: |
+          python3 - <<'PY'
+          import json, os, re, subprocess, sys
+          old, new = os.environ["ANCIEN"].strip(), os.environ["NOUVEAU"].strip()
+          if not re.fullmatch(r"[a-z0-9-]+", new):
+              sys.exit("Le nouveau nom doit être en minuscules, chiffres et tirets uniquement.")
+          if not os.path.isdir(f"oeuvres/{old}"):
+              sys.exit(f"Le dossier oeuvres/{old} n'existe pas.")
+          if os.path.exists(f"oeuvres/{new}"):
+              sys.exit(f"Le dossier oeuvres/{new} existe déjà.")
+          subprocess.run(["git", "mv", f"oeuvres/{old}", f"oeuvres/{new}"], check=True)
+          c = json.load(open("contenu.json", encoding="utf-8"))
+          for s in c.get("series", []):
+              for k in ("dossier", "bannieres"):
+                  if s.get(k) == old:
+                      s[k] = new
+          open("contenu.json", "w", encoding="utf-8").write(json.dumps(c, ensure_ascii=False, indent=2) + "\n")
+          if os.path.exists(".pages.yml"):
+              y = open(".pages.yml", encoding="utf-8").read()
+              y = re.sub(rf"(?m)^(\s*-\s*name:\s*){re.escape(old)}\s*$", rf"\g<1>{new}", y)
+              y = y.replace(f"oeuvres/{old}\n", f"oeuvres/{new}\n")
+              open(".pages.yml", "w", encoding="utf-8").write(y)
+          print(f"oeuvres/{old} -> oeuvres/{new}")
+          PY
+      - name: Enregistrer et republier
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "alimiproductions-ai"
+          git config user.email "alimiproductions@gmail.com"
+          git add -A
+          git commit -m "Dossier oeuvres/${{ inputs.ancien }} renommé en oeuvres/${{ inputs.nouveau }}"
+          git push
+          gh workflow run deploy.yml --ref main
