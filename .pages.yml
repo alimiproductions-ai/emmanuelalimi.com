@@ -24,10 +24,10 @@ media:
     input: oeuvres/pop-art
     output: oeuvres/pop-art
     categories: [image]
-  - name: breslev
+  - name: meouman
     label: "Œuvres · MeOuman"
-    input: oeuvres/breslev
-    output: oeuvres/breslev
+    input: oeuvres/meouman
+    output: oeuvres/meouman
     categories: [image]
   - name: respire-bannieres
     label: "Bannières · Respire"
