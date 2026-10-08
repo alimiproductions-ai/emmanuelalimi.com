@@ -40,7 +40,7 @@ media:
     output: oeuvres/graphic-design
     categories: [image]
   - name: atelier
-    label: "Accueil · À l'atelier"
+    label: "Accueil · Wonders"
     input: oeuvres/atelier
     output: oeuvres/atelier
     categories: [image]
