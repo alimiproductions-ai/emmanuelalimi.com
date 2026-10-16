@@ -49,6 +49,11 @@ media:
     input: oeuvres/live-painting
     output: oeuvres/live-painting
     categories: [image]
+  - name: boutique
+    label: "Boutique · photos des prints"
+    input: boutique
+    output: boutique
+    categories: [image]
   - name: site
     label: "Images du site (logo, accueil, portrait, favicon)"
     input: site
@@ -87,3 +92,90 @@ content:
           - name: bannieres
             label: Dossier des bannières (facultatif)
             type: string
+  - name: boutique
+    label: Boutique
+    type: file
+    path: boutique.json
+    format: json
+    fields:
+      - name: titre
+        label: Titre de la page
+        type: string
+      - name: intro
+        label: Texte d'introduction
+        type: text
+      - name: points
+        label: Points forts (petites étiquettes sous le titre)
+        type: string
+        list: true
+      - name: format_encadre
+        label: Description de l'option « Encadré »
+        type: string
+      - name: format_print
+        label: Description de l'option « Print seul »
+        type: string
+      - name: prints
+        label: Prints (dans l'ordre d'affichage)
+        type: object
+        list: true
+        fields:
+          - name: titre
+            label: Titre
+            type: string
+            required: true
+          - name: image
+            label: Photo (un print sans photo n'est pas affiché)
+            type: image
+            options:
+              media: boutique
+          - name: annee
+            label: Année
+            type: string
+          - name: texte
+            label: Description courte
+            type: text
+          - name: prix_encadre
+            label: Prix encadré en ₪, livraison incluse (0 = option non proposée)
+            type: number
+          - name: lien_encadre
+            label: Lien de paiement encadré (PayPal). Vide = commande par e-mail
+            type: string
+          - name: prix_print
+            label: Prix print seul en ₪, livraison incluse (0 = option non proposée)
+            type: number
+          - name: lien_print
+            label: Lien de paiement print seul (PayPal). Vide = commande par e-mail
+            type: string
+          - name: statut
+            label: Statut
+            type: select
+            options:
+              values:
+                - name: disponible
+                  label: Disponible
+                - name: precommande
+                  label: Précommande
+                - name: epuise
+                  label: Épuisé
+                - name: masque
+                  label: Masqué
+          - name: original
+            label: L'original est à vendre (bouton « Acquérir l'original »)
+            type: boolean
+          - name: edition
+            label: Nombre d'exemplaires de l'édition (0 = non limitée)
+            type: number
+      - name: originaux
+        label: Texte de la partie « Œuvres originales »
+        type: text
+      - name: infos
+        label: Informations pratiques (bas de page)
+        type: object
+        list: true
+        fields:
+          - name: titre
+            label: Titre
+            type: string
+          - name: texte
+            label: Texte
+            type: text

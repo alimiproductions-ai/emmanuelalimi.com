@@ -96,7 +96,29 @@ if os.path.isdir("site"):
             convert(os.path.join("site", f), base)
             site[stem] = base
 
-data = {"series": series, "galeries": {k: [w[:4] for w in v] for k, v in galeries.items()}, "site": site}
+# Boutique : boutique.json (textes, prix, liens de paiement) et photos dans boutique/.
+# Un print sans photo n'est pas affiché.
+boutique = None
+if os.path.exists("boutique.json"):
+    b = json.load(open("boutique.json", encoding="utf-8"))
+    prints = []
+    for p in b.get("prints", []):
+        img = os.path.basename(str(p.get("image") or "").strip())
+        path = os.path.join("boutique", img)
+        if not img or not os.path.isfile(path):
+            print("boutique : pas de photo pour", p.get("titre"), file=sys.stderr)
+            continue
+        base = f"img/boutique/{slug(os.path.splitext(img)[0])}"
+        try:
+            w, h = convert(path, base)
+        except Exception as e:
+            print("FAIL", path, e, file=sys.stderr)
+            continue
+        prints.append({**p, "image": base, "w": w, "h": h})
+    boutique = {**b, "prints": prints}
+    print("boutique", len(prints), "prints")
+
+data = {"series": series, "galeries": {k: [w[:4] for w in v] for k, v in galeries.items()}, "site": site, "boutique": boutique}
 html = open("index.html", encoding="utf-8").read()
 html = html.replace("/*__DATA__*/null", json.dumps(data, ensure_ascii=False))
 open(f"{OUT}/index.html", "w", encoding="utf-8").write(html)

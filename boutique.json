@@ -1,0 +1,68 @@
+{
+  "titre": "Prints",
+  "intro": "Tirages d'art imprimés et encadrés à l'atelier, à la commande. Livraison incluse partout en Israël.",
+  "points": [
+    "Impression A3",
+    "Cadre noir 40×50 avec passe-partout",
+    "Livraison incluse en Israël",
+    "Préparé en 5 à 7 jours"
+  ],
+  "format_encadre": "A3 sous passe-partout, cadre noir 40×50 cm",
+  "format_print": "Impression A3 (29,7×42 cm), sans cadre",
+  "prints": [
+    {
+      "titre": "Tenoftevet // Hafatza",
+      "image": "boutique/tenoftevet-hafatza.jpg",
+      "annee": "2025",
+      "texte": "10 Tevet, un jeûne pour la délivrance.",
+      "prix_encadre": 260,
+      "lien_encadre": "",
+      "prix_print": 120,
+      "lien_print": "",
+      "statut": "disponible",
+      "original": false,
+      "edition": 0
+    },
+    {
+      "titre": "Delusional Joy",
+      "image": "boutique/delusional-joy.jpg",
+      "annee": "2026",
+      "texte": "Soukkot 2026, un hommage au Rav Israël. En précommande : les prints partent dès que l'original est numérisé.",
+      "prix_encadre": 260,
+      "lien_encadre": "",
+      "prix_print": 120,
+      "lien_print": "",
+      "statut": "precommande",
+      "original": true,
+      "edition": 0
+    },
+    {
+      "titre": "Sefirot 354",
+      "image": "",
+      "annee": "2025",
+      "texte": "",
+      "prix_encadre": 260,
+      "lien_encadre": "",
+      "prix_print": 120,
+      "lien_print": "",
+      "statut": "disponible",
+      "original": false,
+      "edition": 0
+    }
+  ],
+  "originaux": "Les toiles originales ne sont pas vendues en ligne. Pour acquérir une œuvre d'une collection ou en commander une, écrivez-nous : réponse sous 48 h avec le prix et les détails.",
+  "infos": [
+    {
+      "titre": "Livraison",
+      "texte": "Incluse partout en Israël, en colis protégé. Retrait possible à l'atelier sur rendez-vous."
+    },
+    {
+      "titre": "Paiement",
+      "texte": "Par carte bancaire ou PayPal. Quand le paiement en ligne n'est pas encore ouvert pour un print, vous recevez le lien de paiement par e-mail après votre commande."
+    },
+    {
+      "titre": "Fabrication",
+      "texte": "Chaque print est imprimé et encadré à l'atelier, à la commande."
+    }
+  ]
+}

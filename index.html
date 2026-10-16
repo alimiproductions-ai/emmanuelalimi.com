@@ -138,16 +138,33 @@ blockquote cite{display:block;margin-top:16px;font:400 13px var(--mono);font-sty
 .tags li{font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line);border-radius:999px;padding:8px 12px}
 
 /* shop */
-.products{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:clamp(16px,2vw,28px)}
-.product{display:grid;gap:12px;align-content:start}
-.product .frame{aspect-ratio:1;background:var(--mat);overflow:hidden;position:relative}
-.product .frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .4s}
-.product .frame img+img{opacity:0}
-.product:hover .frame img+img{opacity:1}
-.product h3{font:700 18px/1.2 var(--display)}
-.price{font:500 14px var(--mono);font-variant-numeric:tabular-nums}
-.price s{color:var(--muted);margin-right:8px}
-.price .sale{color:var(--heart)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.prints{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:clamp(32px,4vw,56px) clamp(20px,3vw,40px)}
+.print{display:grid;gap:16px;align-content:start;min-width:0}
+.print .frame{display:block;aspect-ratio:4/5;width:100%;background:var(--mat);overflow:hidden;position:relative;border:0;padding:0;cursor:zoom-in}
+.print .frame img{width:100%;height:100%;object-fit:contain;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.print .frame:hover img{transform:scale(1.02)}
+.badge{position:absolute;top:12px;left:12px;font:500 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;background:var(--heart);color:var(--heart-ink);padding:8px 11px;border-radius:999px}
+.badge.out{background:var(--ink);color:var(--wall)}
+.print h3{font-size:clamp(24px,2.4vw,30px);font-weight:700;text-transform:uppercase;letter-spacing:-.01em;line-height:1}
+.print .sub{font:400 12px var(--mono);color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin:8px 0 0}
+.print p{margin:0}
+.print .txt{color:var(--muted);font-size:16px}
+.opts{display:grid;gap:8px;border:0;margin:0;padding:0;min-width:0}
+.opt{display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid var(--line);border-radius:14px;padding:12px 14px;cursor:pointer}
+.opt:has(input:checked){border-color:var(--ink)}
+.opt .l{display:flex;align-items:flex-start;gap:10px;min-width:0}
+.opt input{accent-color:var(--heart);margin:5px 0 0;flex:none}
+.opt small{display:block;font-size:13px;color:var(--muted);line-height:1.35}
+.opt b{font:500 16px var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.buy{display:grid;gap:10px;justify-items:start}
+.buy .form-note{font-size:13px}
+.link-arrow{font:500 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;text-underline-offset:4px;justify-self:start}
+.link-arrow:hover{color:var(--heart)}
+.shop-tags{margin-bottom:clamp(28px,4vw,48px)}
+.shop-info{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:24px clamp(24px,4vw,56px)}
+.shop-info h3{font-size:18px;text-transform:uppercase;font-weight:700}
+.shop-info p{margin:6px 0 0;color:var(--muted);font-size:15px;max-width:44ch}
 .soon{padding-block:clamp(56px,10vw,140px);display:grid;gap:24px;justify-items:start}
 .soon h1{font-size:clamp(56px,12vw,180px);font-weight:800;line-height:.86;letter-spacing:-.035em;text-transform:uppercase}
 
@@ -248,6 +265,49 @@ const EVENTS = {
     gallery:D.galeries["live-painting"] || []}
 };
 
+/* ---------- boutique (boutique.json) ---------- */
+const B = D.boutique || {prints:[]};
+const SHOP = () => (B.prints||[]).filter(p=>p.statut!=="masque");
+const money = n => `${Number(n).toLocaleString("fr-FR")} ₪`;
+function printOpts(p){
+  const o=[];
+  if (+p.prix_encadre) o.push({label:"Encadré", detail:B.format_encadre, price:+p.prix_encadre, link:(p.lien_encadre||"").trim()});
+  if (+p.prix_print) o.push({label:"Print seul", detail:B.format_print, price:+p.prix_print, link:(p.lien_print||"").trim()});
+  return o;
+}
+function printCard(p,i){
+  const out=p.statut==="epuise", pre=p.statut==="precommande", opts=printOpts(p);
+  const sub=[p.annee, +p.edition?`Édition limitée de ${p.edition} ex.`:""].filter(Boolean).map(esc).join(" · ");
+  return `<article class="print reveal">
+    <button class="frame" type="button" data-zoom="${i}" aria-label="Voir ${esc(p.titre)} en grand"><img loading="lazy" src="${src(p.image,800)}" width="${p.w}" height="${p.h}" alt="${esc(p.titre)}">${out?`<span class="badge out">Épuisé</span>`:pre?`<span class="badge">Précommande</span>`:""}</button>
+    <div><h3>${esc(p.titre)}</h3>${sub?`<p class="sub">${sub}</p>`:""}</div>
+    ${p.texte?`<p class="txt">${esc(p.texte)}</p>`:""}
+    ${out||!opts.length?`<p class="sub">Cette édition n'est plus disponible.</p>`:`<fieldset class="opts"><legend class="sr">Option pour ${esc(p.titre)}</legend>${opts.map((o,j)=>`<label class="opt"><span class="l"><input type="radio" name="opt-${i}" value="${j}"${j?"":" checked"}><span>${esc(o.label)}${o.detail?`<small>${esc(o.detail)}</small>`:""}</span></span><b>${money(o.price)}</b></label>`).join("")}</fieldset>
+    <div class="buy"><a class="btn" data-buy="${i}" href="#contact">${pre?"Précommander":"Commander"}</a><p class="form-note" data-note="${i}"></p></div>`}
+    ${p.original?`<a class="link-arrow" href="#contact" data-subject="Acquisition d'une œuvre" data-msg="Bonjour, je suis intéressé(e) par l'œuvre originale « ${esc(p.titre)} ».">Acquérir l'original →</a>`:""}
+  </article>`;
+}
+function wireShop(){
+  const list=SHOP();
+  document.querySelectorAll("[data-zoom]").forEach(b=>b.addEventListener("click",()=>openLB(list.map(p=>({src:src(p.image,1600),alt:p.titre,cap:p.titre})),+b.dataset.zoom)));
+  document.querySelectorAll("[data-buy]").forEach(a=>{
+    const i=+a.dataset.buy, p=list[i], opts=printOpts(p), note=document.querySelector(`[data-note="${i}"]`);
+    const pick=()=>opts[+(document.querySelector(`input[name="opt-${i}"]:checked`)||{value:0}).value];
+    const sync=()=>{
+      const o=pick();
+      if (o.link){ a.href=o.link; a.target="_blank"; a.rel="noopener"; note.textContent=`Paiement sécurisé par PayPal, par carte ou compte PayPal. ${money(o.price)}, livraison incluse.`; }
+      else { a.href="#contact"; a.removeAttribute("target"); note.textContent=`${money(o.price)}, livraison incluse. Vous recevez la confirmation et le lien de paiement par e-mail.`; }
+    };
+    document.querySelectorAll(`input[name="opt-${i}"]`).forEach(r=>r.addEventListener("change",sync));
+    a.addEventListener("click",()=>{
+      const o=pick(); if (o.link) return;
+      sessionSubject="Commande boutique";
+      sessionMessage=`Bonjour, je souhaite ${p.statut==="precommande"?"précommander":"commander"} « ${p.titre} » : ${o.label.toLowerCase()} (${money(o.price)}, livraison incluse).\n\nAdresse de livraison (ou retrait à l'atelier) :\nTéléphone :`;
+    });
+    sync();
+  });
+}
+
 /* ---------- rendering ---------- */
 const app = document.getElementById("app");
 const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -295,9 +355,17 @@ const ROUTES = {
     <div class="wrap"><a class="btn" href="#contact" data-subject="Réservation événement">Réserver une date</a></div>`;
   },
   boutique(){
-    return `<div class="wrap soon reveal"><p class="eyebrow">Boutique</p><h1>Coming<br>soon<span class="heart">.</span></h1>
+    const list = SHOP();
+    if (!list.length) return `<div class="wrap soon reveal"><p class="eyebrow">Boutique</p><h1>Coming<br>soon<span class="heart">.</span></h1>
     <p class="lede">La boutique en ligne arrive bientôt. En attendant, pour une œuvre ou une commande personnalisée, écrivez-nous.</p>
     <a class="btn" href="#contact" data-subject="Boutique">Nous écrire</a></div>`;
+    return head("Boutique", `${esc(B.titre||"Prints")}<span class="heart">.</span>`, B.intro||"")+
+    `<div class="wrap">${(B.points||[]).length?`<ul class="tags shop-tags">${B.points.map(t=>`<li>${esc(t)}</li>`).join("")}</ul>`:""}
+      <div class="prints">${list.map(printCard).join("")}</div></div>
+    <section class="wrap"><div class="sec-head"><h2>Œuvres originales</h2><span class="eyebrow">Sur demande</span></div>
+      <div class="split" style="align-items:start"><p class="lede" style="margin:0">${esc(B.originaux||"")}</p>
+      <div><a class="btn" href="#contact" data-subject="Acquisition d'une œuvre">Acquérir une œuvre</a></div></div></section>
+    ${(B.infos||[]).length?`<section class="wrap" style="padding-top:0"><div class="shop-info">${B.infos.map(x=>`<div><h3>${esc(x.titre)}</h3><p>${esc(x.texte)}</p></div>`).join("")}</div></section>`:""}`;
   },
   alimi(){
     return head("Biographie","Qui est Alimi ?","")+`<div class="wrap"><div class="bio">
@@ -326,7 +394,7 @@ function contactBlock(full){
      <div class="row2"><div class="field"><label for="f-name">Nom</label><input id="f-name" name="name" autocomplete="name" required></div>
      <div class="field"><label for="f-mail">E-mail</label><input id="f-mail" name="email" type="email" autocomplete="email" required></div></div>
      <div class="field"><label for="f-subj">Objet</label><select id="f-subj" name="subject">
-       <option>Commande personnalisée</option><option>Portrait</option><option>Réservation événement</option><option>Boutique</option><option>Autre</option></select></div>
+       <option>Commande personnalisée</option><option>Portrait</option><option>Réservation événement</option><option>Commande boutique</option><option>Acquisition d'une œuvre</option><option>Autre</option></select></div>
      <div class="field"><label for="f-msg">Message</label><textarea id="f-msg" name="message" required></textarea></div>
      <input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" style="display:none" aria-hidden="true">
      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"><button class="btn" type="submit" id="fsend">Envoyer</button><span class="ok" id="fok" role="status" hidden></span></div>
@@ -358,10 +426,11 @@ function render(){
   document.getElementById("menuBtn").setAttribute("aria-expanded","false");
   wire(route, coll);
   const pend = sessionSubject; if (pend){ const s=document.getElementById("f-subj"); if(s){ const o=[...s.options].find(o=>o.text===pend)||new Option(pend,pend,true,true); if(!o.parentNode) s.add(o); s.value=o.value; } sessionSubject=null; }
+  if (sessionMessage){ const m=document.getElementById("f-msg"); if(m) m.value=sessionMessage; sessionMessage=null; }
   if (!scrollToContact) window.scrollTo({top:0});
   else { document.getElementById("contact-sec")?.scrollIntoView(); scrollToContact=false; }
 }
-let LBSRC=null, sessionSubject=null, scrollToContact=false;
+let LBSRC=null, sessionSubject=null, sessionMessage=null, scrollToContact=false;
 
 function wire(route, coll){
   // lightbox groups: each [data-lb] container is its own sequence
@@ -369,7 +438,8 @@ function wire(route, coll){
     const items=[...group.querySelectorAll(".work")].map(b=>{const im=b.querySelector("img");return {src:im.currentSrc||im.src, alt:im.alt, cap:b.querySelector("figcaption span")?.textContent||""};});
     group.querySelectorAll(".work").forEach((b,i)=>b.addEventListener("click",()=>openLB(items.map(x=>({...x,src:x.src.replace(/-800\.webp$/,"-1600.webp")})),i)));
   });
-  document.querySelectorAll("[data-subject]").forEach(a=>a.addEventListener("click",()=>{sessionSubject=a.dataset.subject;}));
+  document.querySelectorAll("[data-subject]").forEach(a=>a.addEventListener("click",()=>{sessionSubject=a.dataset.subject; sessionMessage=a.dataset.msg||null;}));
+  if (route==="boutique") wireShop();
   const copy=document.getElementById("copyMail");
   if (copy) copy.addEventListener("click",()=>{
     const done=()=>{copy.textContent="Copié";setTimeout(()=>copy.textContent="Copier",1600);};
