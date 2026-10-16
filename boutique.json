@@ -16,9 +16,9 @@
       "annee": "2025",
       "texte": "10 Tevet, un jeûne pour la délivrance.",
       "prix_encadre": 260,
-      "lien_encadre": "",
+      "lien_encadre": "https://www.paypal.com/ncp/payment/JNZ6BGNSJSMZN",
       "prix_print": 120,
-      "lien_print": "",
+      "lien_print": "https://www.paypal.com/ncp/payment/YZJT4JFZQXY36",
       "statut": "disponible",
       "original": false,
       "edition": 0
@@ -29,9 +29,9 @@
       "annee": "2026",
       "texte": "Soukkot 2026, un hommage au Rav Israël. En précommande : les prints partent dès que l'original est numérisé.",
       "prix_encadre": 260,
-      "lien_encadre": "",
+      "lien_encadre": "https://www.paypal.com/ncp/payment/FL9PTKT8QUYTY",
       "prix_print": 120,
-      "lien_print": "",
+      "lien_print": "https://www.paypal.com/ncp/payment/3LSBLPDEKUT9G",
       "statut": "precommande",
       "original": true,
       "edition": 0
@@ -42,9 +42,9 @@
       "annee": "2025",
       "texte": "L'arbre des Sefirot.",
       "prix_encadre": 260,
-      "lien_encadre": "",
+      "lien_encadre": "https://www.paypal.com/ncp/payment/XT8WJPTQSKPEA",
       "prix_print": 120,
-      "lien_print": "",
+      "lien_print": "https://www.paypal.com/ncp/payment/C46N9LXJUA4KN",
       "statut": "disponible",
       "original": false,
       "edition": 0
@@ -58,7 +58,7 @@
     },
     {
       "titre": "Paiement",
-      "texte": "Par carte bancaire ou PayPal. Quand le paiement en ligne n'est pas encore ouvert pour un print, vous recevez le lien de paiement par e-mail après votre commande."
+      "texte": "Paiement sécurisé par carte bancaire, Apple Pay ou PayPal, sans besoin de compte PayPal."
     },
     {
       "titre": "Fabrication",

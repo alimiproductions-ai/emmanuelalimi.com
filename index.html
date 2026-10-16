@@ -295,7 +295,7 @@ function wireShop(){
     const pick=()=>opts[+(document.querySelector(`input[name="opt-${i}"]:checked`)||{value:0}).value];
     const sync=()=>{
       const o=pick();
-      if (o.link){ a.href=o.link; a.target="_blank"; a.rel="noopener"; note.textContent=`Paiement sécurisé par PayPal, par carte ou compte PayPal. ${money(o.price)}, livraison incluse.`; }
+      if (o.link){ a.href=o.link; a.target="_blank"; a.rel="noopener"; note.textContent=`${money(o.price)}, livraison incluse. Paiement sécurisé par carte, Apple Pay ou PayPal.`; }
       else { a.href="#contact"; a.removeAttribute("target"); note.textContent=`${money(o.price)}, livraison incluse. Vous recevez la confirmation et le lien de paiement par e-mail.`; }
     };
     document.querySelectorAll(`input[name="opt-${i}"]`).forEach(r=>r.addEventListener("change",sync));
