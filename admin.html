@@ -390,7 +390,20 @@ function reglages() {
   <div class="box" style="margin-top:12px"><h3>Textes affichés aux clients</h3>
    <label class="f">Option « Encadré »<input data-k="format_encadre" value="${esc(r.format_encadre)}"></label>
    <label class="f">Option « Print seul »<input data-k="format_print" value="${esc(r.format_print)}"></label>
-   <label class="f">Délai de préparation<input data-k="delai" value="${esc(r.delai)}"></label></div>`;
+   <label class="f">Délai de préparation<input data-k="delai" value="${esc(r.delai)}"></label></div>
+  <div class="box" style="margin-top:12px"><h3>Mot de passe de connexion</h3>
+   <p style="margin:0;font-size:14px;color:var(--muted)">Facultatif : pour te connecter avec ton e-mail et un mot de passe, en plus du lien envoyé par e-mail.</p>
+   <div class="grid2"><label class="f">Nouveau mot de passe (8 caractères minimum)<input id="pw1" type="password" autocomplete="new-password"></label>
+   <label class="f">Confirmer<input id="pw2" type="password" autocomplete="new-password"></label></div>
+   <div class="actions"><button class="primary" id="pwb">Enregistrer le mot de passe</button></div><p class="msg" id="pwm"></p></div>`;
+  document.getElementById("pwb").onclick = async () => {
+    const a=document.getElementById("pw1").value, b=document.getElementById("pw2").value, m=document.getElementById("pwm");
+    if (a.length < 8) { m.textContent = "Le mot de passe doit faire au moins 8 caractères."; return; }
+    if (a !== b) { m.textContent = "Les deux mots de passe ne sont pas identiques."; return; }
+    const { error } = await sb.auth.updateUser({ password: a });
+    if (error) { m.textContent = "Erreur : " + error.message; return; }
+    document.getElementById("pw1").value = document.getElementById("pw2").value = ""; m.textContent = ""; toast("Mot de passe enregistré");
+  };
   document.querySelectorAll("[data-k]").forEach(i=>i.onchange=async()=>{ const k=i.dataset.k; r[k]= i.type==="number"?Number(i.value)||0:i.value; must(await sb.from("reglages").update({[k]:r[k], updated_at:new Date().toISOString()}).eq("id",1)); toast("Enregistré"); });
 }
 
