@@ -170,14 +170,22 @@ function loginView(msg = "") {
     <h1>Gestion<span style="color:var(--heart)">.</span></h1>
     <p class="eyebrow">Boutique Emmanuel Alimi</p>
     <label class="f">E-mail<input id="le" type="email" autocomplete="username" value="alimiproductions@gmail.com" required></label>
-    <label class="f">Mot de passe<input id="lp" type="password" autocomplete="current-password" required></label>
-    <button class="primary" type="submit">Se connecter</button>
+    <button class="primary" type="button" id="ml">Recevoir un lien de connexion</button>
+    <p class="eyebrow" style="text-transform:none;letter-spacing:0">Un lien arrive par e-mail : clique dessus pour entrer, sans mot de passe.</p>
+    <details><summary class="eyebrow">Avec un mot de passe</summary>
+    <label class="f" style="margin-top:10px">Mot de passe<input id="lp" type="password" autocomplete="current-password"></label>
+    <button type="submit" style="margin-top:10px">Se connecter</button></details>
     <p class="msg" id="lm">${esc(msg)}</p></form></div>`;
   document.getElementById("lf").onsubmit = async e => {
     e.preventDefault();
     const { error } = await sb.auth.signInWithPassword({ email: document.getElementById("le").value.trim(), password: document.getElementById("lp").value });
     if (error) document.getElementById("lm").textContent = "E-mail ou mot de passe incorrect.";
     else start();
+  };
+  document.getElementById("ml").onclick = async () => {
+    const lm = document.getElementById("lm"), email = document.getElementById("le").value.trim();
+    const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname } });
+    lm.textContent = error ? "Envoi impossible : " + error.message : "Lien envoyé à " + email + ". Ouvre-le sur cet appareil.";
   };
 }
 
@@ -191,10 +199,12 @@ async function loadAll() {
   ]);
   S.commandes = must(c); S.stock = must(s); S.produits = must(p); S.reglages = must(r);
 }
+let started = false;
 async function start() {
+  if (started) return; started = true;
   app.innerHTML = `<p class="wrap" style="padding:40px 0">Chargement…</p>`;
   try { await loadAll(); } catch (e) {
-    await sb.auth.signOut(); return loginView("Ce compte n'a pas accès à la gestion.");
+    started = false; await sb.auth.signOut(); return loginView("Ce compte n'a pas accès à la gestion.");
   }
   shell(); render();
   sb.channel("commandes").on("postgres_changes",{event:"*",schema:"public",table:"commandes"}, async () => {
@@ -384,6 +394,7 @@ function reglages() {
   document.querySelectorAll("[data-k]").forEach(i=>i.onchange=async()=>{ const k=i.dataset.k; r[k]= i.type==="number"?Number(i.value)||0:i.value; must(await sb.from("reglages").update({[k]:r[k], updated_at:new Date().toISOString()}).eq("id",1)); toast("Enregistré"); });
 }
 
+sb.auth.onAuthStateChange((event) => { if (event === "SIGNED_IN") start(); });
 sb.auth.getSession().then(({data:{session}})=> session ? start() : loginView());
 </script>
 </body>
