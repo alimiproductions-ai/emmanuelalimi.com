@@ -27,12 +27,12 @@
       "titre": "Delusional Joy",
       "image": "boutique/delusional-joy.jpg",
       "annee": "2026",
-      "texte": "Soukkot 2026, un hommage au Rav Israël. En précommande : les prints partent dès que l'original est numérisé.",
+      "texte": "Soukkot 2026, un hommage au Rav Israël.",
       "prix_encadre": 260,
       "lien_encadre": "https://www.paypal.com/ncp/payment/FL9PTKT8QUYTY",
       "prix_print": 120,
       "lien_print": "https://www.paypal.com/ncp/payment/3LSBLPDEKUT9G",
-      "statut": "precommande",
+      "statut": "disponible",
       "original": true,
       "edition": 0
     },
@@ -54,7 +54,7 @@
   "infos": [
     {
       "titre": "Livraison",
-      "texte": "Incluse partout en Israël, en colis protégé. Retrait possible à l'atelier sur rendez-vous."
+      "texte": "Livrée à domicile partout en Israël, en colis protégé."
     },
     {
       "titre": "Paiement",
