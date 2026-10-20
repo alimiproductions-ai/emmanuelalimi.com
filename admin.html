@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Gestion · Emmanuel Alimi</title>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Karla:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Atelier : même identité que le site (mur blanc, encre, cœur rouge), en version outil : liste dense, chiffres en mono. */
+:root{
+  --wall:#fbfbf9; --panel:#f1f1ee; --card:#ffffff; --ink:#141413; --muted:#6b6b66; --line:#dcdcd6;
+  --heart:#e0261c; --heart-ink:#ffffff; --good:#1f7a4d; --warn:#a86a00;
+  --display:"Syne","Helvetica Neue",Arial,sans-serif;
+  --body:"Karla","Helvetica Neue",Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --wall:#121211; --panel:#1c1c1a; --card:#191917; --ink:#f2f2ee; --muted:#9a9a93; --line:#2e2e2b;
+  --heart:#ff4a3d; --heart-ink:#121211; --good:#5bc48d; --warn:#e0a83a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --wall:#121211; --panel:#1c1c1a; --card:#191917; --ink:#f2f2ee; --muted:#9a9a93; --line:#2e2e2b;
+  --heart:#ff4a3d; --heart-ink:#121211; --good:#5bc48d; --warn:#e0a83a; color-scheme:dark}
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+body{margin:0;background:var(--wall);color:var(--ink);font:400 16px/1.5 var(--body);-webkit-font-smoothing:antialiased}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--heart);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
+.eyebrow{font:500 11px/1.2 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+button,.btn{font:500 12px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:11px 16px;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+button:hover{border-color:var(--ink)}
+button.primary{background:var(--ink);color:var(--wall);border-color:var(--ink)}
+button.primary:hover{background:var(--heart);border-color:var(--heart);color:var(--heart-ink)}
+button.danger{color:var(--heart)}
+button:disabled{opacity:.5;cursor:default}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 11px;width:100%;min-width:0}
+textarea{resize:vertical}
+input[type=checkbox]{width:auto;accent-color:var(--heart)}
+label.f{display:grid;gap:4px;font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:0}
+label.f > *{font:400 15px var(--body);letter-spacing:0;text-transform:none}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--wall) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:16px;min-height:60px;flex-wrap:wrap;padding-block:8px}
+.brand{font:800 14px var(--display);letter-spacing:.12em;text-transform:uppercase;text-decoration:none}
+.brand span{color:var(--heart)}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}
+.tabs button{border:0;background:none;color:var(--muted);padding:9px 12px}
+.tabs button[aria-selected="true"]{background:var(--panel);color:var(--ink)}
+.tabs .count{background:var(--heart);color:var(--heart-ink);border-radius:999px;padding:2px 6px;font-size:10px}
+main{padding-block:24px 64px}
+.head{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.head h1{font-size:clamp(28px,5vw,44px);font-weight:800;text-transform:uppercase;letter-spacing:-.02em;line-height:.95}
+
+/* pills */
+.pill{display:inline-block;font:500 11px/1 var(--mono);letter-spacing:.04em;padding:6px 9px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+.s-en_attente{color:var(--muted)} .s-payee{color:var(--heart)} .s-en_preparation{color:var(--warn)}
+.s-expediee{color:var(--ink)} .s-livree{color:var(--good)} .s-annulee{color:var(--muted);text-decoration:line-through}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.chips button{padding:8px 12px}
+.chips button[aria-pressed="true"]{background:var(--ink);color:var(--wall);border-color:var(--ink)}
+
+/* orders */
+.list{display:grid;gap:8px}
+.order{display:grid;grid-template-columns:88px minmax(0,1.3fr) minmax(0,1.4fr) 92px 130px;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;text-align:left;cursor:pointer;width:100%;font:inherit;letter-spacing:0;text-transform:none;color:inherit}
+.order:hover{border-color:var(--ink)}
+.order .n{font:500 14px var(--mono)}
+.order .d{font:400 12px var(--mono);color:var(--muted)}
+.order .t{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.order .p{text-align:right;font:500 15px var(--mono)}
+@media (max-width:760px){.order{grid-template-columns:1fr auto;row-gap:4px}.order .hide-s{display:none}}
+.empty{border:1px dashed var(--line);border-radius:14px;padding:28px;color:var(--muted);text-align:center}
+
+/* panel (dialog) */
+dialog{border:0;padding:0;width:min(720px,calc(100% - 20px));max-height:calc(100% - 20px);background:var(--wall);color:var(--ink);border-radius:18px}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+.dlg{display:grid;gap:18px;padding:clamp(18px,3vw,28px)}
+.dlg-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.dlg-head h2{font-size:28px;font-weight:800;text-transform:uppercase;line-height:1}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:grid;gap:10px;min-width:0}
+.box h3{font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.kv{display:grid;grid-template-columns:130px minmax(0,1fr);gap:6px 12px;margin:0}
+.kv dt{color:var(--muted);font-size:14px}.kv dd{margin:0;overflow-wrap:anywhere}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.hist{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:14px}
+.hist li{display:flex;gap:10px;flex-wrap:wrap}
+.hist time{font:400 12px var(--mono);color:var(--muted);min-width:120px}
+.costs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,120px),1fr));gap:10px}
+
+/* kpis + tables */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:10px;margin-bottom:20px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:grid;gap:2px;min-width:0}
+.kpi b{font:500 26px/1.15 var(--mono);font-variant-numeric:tabular-nums}
+.kpi small{color:var(--muted);font-size:13px}
+.tbl{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:14px}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+td.r,th.r{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+tfoot td{font-weight:700;border-top:1px solid var(--ink)}
+td input{padding:6px 8px}
+td input.n{width:80px;text-align:right;font-family:var(--mono)}
+.bar{height:8px;border-radius:4px;background:var(--heart);min-width:2px}
+.alert{color:var(--heart);font:500 11px var(--mono);text-transform:uppercase;letter-spacing:.06em}
+.qty{display:flex;align-items:center;gap:6px}
+.qty button{padding:6px 10px}
+
+/* products */
+.prods{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:14px}
+.prod{display:grid;grid-template-columns:110px minmax(0,1fr);gap:14px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
+.prod .ph{aspect-ratio:4/5;background:var(--panel);border-radius:8px;overflow:hidden;display:grid;place-items:center;color:var(--muted);font-size:12px;text-align:center}
+.prod .ph img{width:100%;height:100%;object-fit:contain;background:#fff}
+.prod .fields{display:grid;gap:8px}
+.saved{font:500 11px var(--mono);color:var(--good)}
+
+/* login */
+.login{min-height:100vh;display:grid;place-items:center;padding:24px}
+.login form{width:min(380px,100%);display:grid;gap:14px}
+.login h1{font-size:34px;font-weight:800;text-transform:uppercase;line-height:.95}
+.msg{font:500 13px var(--mono);color:var(--heart);min-height:1em;margin:0}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);transform:translateX(-50%);background:var(--ink);color:var(--wall);padding:12px 18px;border-radius:999px;font:500 13px var(--mono);z-index:20}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast" id="toast" hidden role="status"></div>
+<dialog id="dlg"></dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+const CFG = /*__SHOP__*/null || { url: "", anon: "" };
+const app = document.getElementById("app"), dlg = document.getElementById("dlg");
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const money = n => `${Math.round(Number(n)||0).toLocaleString("fr-FR")} ₪`;
+const dt = d => d ? new Date(d).toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",year:"2-digit",hour:"2-digit",minute:"2-digit"}) : "";
+const STATUTS = {en_attente:"En attente de paiement", payee:"Payée", en_preparation:"En préparation", expediee:"Expédiée", livree:"Livrée", annulee:"Annulée"};
+const NEXT = {payee:"en_preparation", en_preparation:"expediee", expediee:"livree"};
+const OPT = {encadre:"Encadré", print:"Print seul"};
+const SOLD = ["payee","en_preparation","expediee","livree"];
+const pill = s => `<span class="pill s-${s}">${STATUTS[s]||s}</span>`;
+let toastT; const toast = t => { const el=document.getElementById("toast"); el.textContent=t; el.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>el.hidden=true,2600); };
+
+if (!CFG.url || !window.supabase) {
+  app.innerHTML = `<div class="login"><div><h1>Gestion<span style="color:var(--heart)">.</span></h1><p>La boutique en ligne n'est pas encore configurée.</p></div></div>`;
+  throw new Error("non configuré");
+}
+const sb = window.supabase.createClient(CFG.url, CFG.anon);
+let S = { tab: "commandes", filtre: "a_traiter", commandes: [], stock: [], produits: [], reglages: {} };
+try { S.tab = localStorage.getItem("admin-tab") || S.tab; } catch(e) {}
+
+async function fn(action, body) {
+  const { data: { session } } = await sb.auth.getSession();
+  const r = await fetch(`${CFG.url}/functions/v1/boutique`, { method:"POST", headers:{ "Content-Type":"application/json", apikey: CFG.anon, Authorization:`Bearer ${session?.access_token}` }, body: JSON.stringify({ action, ...body }) });
+  const j = await r.json().catch(()=>({})); if (!r.ok) throw new Error(j.error || "Erreur du serveur"); return j;
+}
+const must = ({ data, error }) => { if (error) throw new Error(error.message); return data; };
+
+/* ---------- connexion ---------- */
+function loginView(msg = "") {
+  app.innerHTML = `<div class="login"><form id="lf">
+    <h1>Gestion<span style="color:var(--heart)">.</span></h1>
+    <p class="eyebrow">Boutique Emmanuel Alimi</p>
+    <label class="f">E-mail<input id="le" type="email" autocomplete="username" value="alimiproductions@gmail.com" required></label>
+    <label class="f">Mot de passe<input id="lp" type="password" autocomplete="current-password" required></label>
+    <button class="primary" type="submit">Se connecter</button>
+    <p class="msg" id="lm">${esc(msg)}</p></form></div>`;
+  document.getElementById("lf").onsubmit = async e => {
+    e.preventDefault();
+    const { error } = await sb.auth.signInWithPassword({ email: document.getElementById("le").value.trim(), password: document.getElementById("lp").value });
+    if (error) document.getElementById("lm").textContent = "E-mail ou mot de passe incorrect.";
+    else start();
+  };
+}
+
+/* ---------- chargement ---------- */
+async function loadAll() {
+  const [c, s, p, r] = await Promise.all([
+    sb.from("commandes").select("*").neq("statut","en_attente").order("created_at",{ascending:false}).limit(1000),
+    sb.from("stock").select("*").order("ordre"),
+    sb.from("produits").select("*").order("ordre").order("created_at"),
+    sb.from("reglages").select("*").eq("id",1).single(),
+  ]);
+  S.commandes = must(c); S.stock = must(s); S.produits = must(p); S.reglages = must(r);
+}
+async function start() {
+  app.innerHTML = `<p class="wrap" style="padding:40px 0">Chargement…</p>`;
+  try { await loadAll(); } catch (e) {
+    await sb.auth.signOut(); return loginView("Ce compte n'a pas accès à la gestion.");
+  }
+  shell(); render();
+  sb.channel("commandes").on("postgres_changes",{event:"*",schema:"public",table:"commandes"}, async () => {
+    S.commandes = must(await sb.from("commandes").select("*").neq("statut","en_attente").order("created_at",{ascending:false}).limit(1000));
+    shell(); if (S.tab==="commandes"||S.tab==="ventes") render();
+  }).subscribe();
+}
+const TABS = [["commandes","Commandes"],["ventes","Ventes et marges"],["stock","Stock"],["produits","Produits"],["reglages","Réglages"]];
+function shell() {
+  const todo = S.commandes.filter(c=>c.statut==="payee").length, low = S.stock.filter(i=>i.quantite<=i.seuil).length;
+  if (!document.getElementById("main")) app.innerHTML = `<header class="top"><div class="wrap"><a class="brand" href="./" target="_blank" rel="noopener">Alimi<span>.</span> Gestion</a><nav class="tabs" id="tabs" role="tablist"></nav><button id="out">Déconnexion</button></div></header><main class="wrap" id="main"></main>`;
+  document.getElementById("tabs").innerHTML = TABS.map(([k,l])=>`<button role="tab" data-tab="${k}" aria-selected="${S.tab===k}">${l}${k==="commandes"&&todo?` <span class="count">${todo}</span>`:""}${k==="stock"&&low?` <span class="count">${low}</span>`:""}</button>`).join("");
+  document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{ S.tab=b.dataset.tab; try{localStorage.setItem("admin-tab",S.tab);}catch(e){} shell(); render(); });
+  document.getElementById("out").onclick = async()=>{ await sb.auth.signOut(); location.reload(); };
+}
+function render() { ({commandes, ventes, stock, produits, reglages})[S.tab](); window.scrollTo({top:0}); }
+const main = () => document.getElementById("main");
+
+/* ---------- commandes ---------- */
+const FILTRES = [["a_traiter","À traiter",c=>["payee","en_preparation"].includes(c.statut)],["expediee","Expédiées",c=>c.statut==="expediee"],["livree","Livrées",c=>c.statut==="livree"],["annulee","Annulées",c=>c.statut==="annulee"],["toutes","Toutes",()=>true]];
+function commandes() {
+  const f = FILTRES.find(x=>x[0]===S.filtre) || FILTRES[0];
+  const list = S.commandes.filter(f[2]);
+  main().innerHTML = `<div class="head"><div><p class="eyebrow">${S.commandes.length} commandes au total</p><h1>Commandes</h1></div><button id="nv">Vente hors site</button></div>
+  <div class="chips">${FILTRES.map(([k,l,t])=>`<button data-f="${k}" aria-pressed="${S.filtre===k}">${l} · ${S.commandes.filter(t).length}</button>`).join("")}</div>
+  <div class="list">${list.length ? list.map(c=>`<button class="order" data-id="${c.id}">
+    <span><span class="n">AL-${c.numero}</span><br><span class="d">${dt(c.paye_le||c.created_at)}</span></span>
+    <span class="t"><b>${esc(c.client_nom)}</b><br><span class="d">${esc(c.ville)}${c.source==="manuel"?" · hors site":""}</span></span>
+    <span class="t hide-s">${esc(c.produit_titre)}<br><span class="d">${OPT[c.option]}</span></span>
+    <span class="p">${money(c.prix)}</span><span>${pill(c.statut)}</span></button>`).join("") : `<div class="empty">Aucune commande ici pour l'instant. Les nouvelles commandes du site arrivent toutes seules.</div>`}</div>`;
+  document.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{S.filtre=b.dataset.f; commandes();});
+  document.querySelectorAll(".order").forEach(b=>b.onclick=()=>orderPanel(b.dataset.id));
+  document.getElementById("nv").onclick = manualOrder;
+}
+async function orderPanel(id) {
+  const c = S.commandes.find(x=>x.id===id); if (!c) return;
+  const hist = must(await sb.from("historique").select("*").eq("commande_id",id).order("created_at"));
+  const next = NEXT[c.statut];
+  const marge = c.prix - c.cout_impression - c.cout_cadre - c.cout_emballage - c.cout_livraison - c.frais_paiement;
+  dlg.innerHTML = `<div class="dlg">
+   <div class="dlg-head"><div><p class="eyebrow">${dt(c.paye_le||c.created_at)} · ${c.source==="manuel"?"vente hors site":"site"}</p><h2>AL-${c.numero}</h2></div><div class="actions">${pill(c.statut)}<button id="x">Fermer</button></div></div>
+   <div class="grid2">
+    <div class="box"><h3>Client</h3><dl class="kv"><dt>Nom</dt><dd>${esc(c.client_nom)}</dd><dt>E-mail</dt><dd><a href="mailto:${esc(c.client_email)}">${esc(c.client_email)}</a></dd><dt>Téléphone</dt><dd><a href="tel:${esc(c.client_tel)}">${esc(c.client_tel)}</a></dd>
+      <dt>Adresse</dt><dd id="addr">${esc(c.adresse)}<br>${esc(c.code_postal)} ${esc(c.ville)}</dd>${c.note_client?`<dt>Note</dt><dd>${esc(c.note_client)}</dd>`:""}</dl>
+      <div class="actions"><button id="cpy">Copier l'adresse</button></div></div>
+    <div class="box"><h3>Commande</h3><dl class="kv"><dt>Œuvre</dt><dd>${esc(c.produit_titre)}</dd><dt>Option</dt><dd>${OPT[c.option]}<br><span class="eyebrow" style="text-transform:none;letter-spacing:0">${esc(c.option_detail)}</span></dd><dt>Payé</dt><dd class="num">${money(c.prix)}</dd>${c.paypal_capture_id?`<dt>PayPal</dt><dd class="num">${esc(c.paypal_capture_id)}</dd>`:""}${c.transporteur||c.suivi_numero?`<dt>Colis</dt><dd>${esc(c.transporteur)} ${esc(c.suivi_numero)}</dd>`:""}</dl></div>
+   </div>
+   ${c.statut!=="annulee"&&c.statut!=="livree" ? `<div class="box"><h3>${next?`Passer à « ${STATUTS[next]} »`:"Statut"}</h3>
+     ${next==="expediee"||c.statut==="expediee" ? `<div class="grid2"><label class="f">Transporteur<input id="tr" list="trs" value="${esc(c.transporteur)}" placeholder="GetPackage, HFD…"></label><label class="f">Numéro de suivi<input id="sn" value="${esc(c.suivi_numero)}"></label></div><label class="f">Lien de suivi du colis<input id="su" type="url" value="${esc(c.suivi_url)}" placeholder="https://"></label><label class="f">Coût réel de la livraison (₪)<input id="cl" type="number" step="1" value="${c.cout_livraison}"></label><datalist id="trs"><option>GetPackage</option><option>HFD</option><option>Poste israélienne</option><option>Livraison en main propre</option></datalist>`:""}
+     <label class="f">Message au client (facultatif)<textarea id="mg" rows="2" placeholder="Ex. : votre print est signé, il part demain matin."></textarea></label>
+     <label style="display:flex;gap:8px;align-items:center;font-size:14px"><input type="checkbox" id="em" checked> Prévenir le client par e-mail</label>
+     <div class="actions">${next?`<button class="primary" data-st="${next}">${STATUTS[next]}</button>`:""}${c.statut==="expediee"?`<button data-st="expediee">Mettre à jour le suivi</button>`:""}<button class="danger" data-st="annulee">Annuler la commande</button></div>
+     <p class="msg" id="pm"></p></div>` : ""}
+   <div class="box"><h3>Marge sur cette commande</h3><div class="costs">
+     ${[["cout_impression","Impression"],["cout_cadre","Cadre"],["cout_emballage","Emballage"],["cout_livraison","Livraison"],["frais_paiement","Frais PayPal"]].map(([k,l])=>`<label class="f">${l}<input type="number" step="0.01" data-cost="${k}" value="${c[k]}"></label>`).join("")}
+   </div><p style="margin:0">Bénéfice : <b class="num">${money(marge)}</b> <span class="eyebrow">${c.prix?Math.round(marge/c.prix*100):0} %</span></p></div>
+   <div class="box"><h3>Note interne</h3><textarea id="ni" rows="2">${esc(c.note_interne)}</textarea></div>
+   <div class="box"><h3>Historique</h3><ul class="hist">${hist.map(h=>`<li><time>${dt(h.created_at)}</time><span>${STATUTS[h.statut]||h.statut}${h.email_envoye?" · e-mail envoyé":""}${h.message?` · « ${esc(h.message)} »`:""}</span></li>`).join("")||"<li>Aucun événement.</li>"}</ul>
+     <div class="actions"><a class="btn" href="./#suivi/${esc(c.token)}" target="_blank" rel="noopener">Page de suivi du client</a>${c.source==="site"?`<button id="rs">Renvoyer le bon de commande</button>`:""}</div></div>
+  </div>`;
+  dlg.showModal();
+  document.getElementById("x").onclick = () => dlg.close();
+  document.getElementById("cpy").onclick = () => { const t=`${c.client_nom}\n${c.adresse}\n${c.code_postal} ${c.ville}\n${c.client_tel}`; navigator.clipboard?.writeText(t).then(()=>toast("Adresse copiée"),()=>toast("Copie impossible")); };
+  const rs = document.getElementById("rs"); if (rs) rs.onclick = async()=>{ rs.disabled=true; try{ const r=await fn("renvoyer",{commande_id:c.id}); toast(r.email_envoye?"Bon de commande renvoyé":"L'e-mail n'est pas parti"); }catch(e){ toast(e.message); } rs.disabled=false; };
+  document.querySelectorAll("[data-cost]").forEach(i=>i.onchange=async()=>{ c[i.dataset.cost]=Number(i.value)||0; must(await sb.from("commandes").update({[i.dataset.cost]:c[i.dataset.cost]}).eq("id",c.id)); toast("Coût enregistré"); });
+  document.getElementById("ni").onchange = async e => { c.note_interne=e.target.value; must(await sb.from("commandes").update({note_interne:c.note_interne}).eq("id",c.id)); toast("Note enregistrée"); };
+  document.querySelectorAll("[data-st]").forEach(b=>b.onclick=async()=>{
+    const st=b.dataset.st, pm=document.getElementById("pm");
+    if (st==="annulee" && b.dataset.sure!=="1") { b.dataset.sure="1"; b.textContent="Confirmer l'annulation"; pm.textContent="Pense à rembourser le client dans PayPal."; return; }
+    const v=id=>document.getElementById(id)?.value;
+    b.disabled=true; pm.textContent="";
+    try {
+      const body={commande_id:c.id, statut:st, message:v("mg")||"", envoyer_email:document.getElementById("em").checked};
+      if (document.getElementById("tr")) Object.assign(body,{transporteur:v("tr"),suivi_numero:v("sn"),suivi_url:v("su"),cout_livraison:v("cl")});
+      if (c.source==="manuel" && !c.client_email.includes("@")) body.envoyer_email=false;
+      const r = await fn("statut", body);
+      Object.assign(c, r.commande); if (st!=="annulee") S.stock = must(await sb.from("stock").select("*").order("ordre"));
+      toast(`${STATUTS[st]}${r.email_envoye?" · client prévenu":""}`); dlg.close(); shell(); render();
+    } catch(e) { pm.textContent=e.message; b.disabled=false; }
+  });
+}
+function manualOrder() {
+  const prods = S.produits.filter(p=>p.statut!=="masque");
+  dlg.innerHTML = `<form class="dlg" id="mf"><div class="dlg-head"><div><p class="eyebrow">Vente en main propre, salon, Instagram…</p><h2>Vente hors site</h2></div><button type="button" id="x">Fermer</button></div>
+   <div class="grid2"><label class="f">Print<select id="mp">${prods.map(p=>`<option value="${p.id}">${esc(p.titre)}</option>`).join("")}</select></label>
+   <label class="f">Option<select id="mo"><option value="encadre">Encadré</option><option value="print">Print seul</option></select></label>
+   <label class="f">Prix payé (₪)<input id="mx" type="number" required></label></div>
+   <div class="grid2"><label class="f">Nom du client<input id="mn" required></label><label class="f">E-mail (facultatif)<input id="me" type="email"></label><label class="f">Téléphone<input id="mt"></label></div>
+   <div class="grid2"><label class="f">Adresse<input id="ma" placeholder="Remis en main propre"></label><label class="f">Ville<input id="mv"></label></div>
+   <div class="actions"><button class="primary" type="submit">Enregistrer la vente</button></div><p class="msg" id="mm"></p></form>`;
+  dlg.showModal();
+  const setPrice=()=>{ const p=prods.find(x=>x.id===document.getElementById("mp").value); if(p) document.getElementById("mx").value = document.getElementById("mo").value==="encadre"?p.prix_encadre:p.prix_print; };
+  document.getElementById("mp").onchange=setPrice; document.getElementById("mo").onchange=setPrice; setPrice();
+  document.getElementById("x").onclick=()=>dlg.close();
+  document.getElementById("mf").onsubmit=async e=>{
+    e.preventDefault(); const r=S.reglages, opt=document.getElementById("mo").value, p=prods.find(x=>x.id===document.getElementById("mp").value), prix=Number(document.getElementById("mx").value)||0;
+    try {
+      must(await sb.from("commandes").insert({ source:"manuel", statut:"payee", paye_le:new Date().toISOString(), produit_id:p?.id, produit_titre:p?.titre||"Print", option:opt,
+        option_detail: opt==="encadre"?r.format_encadre:r.format_print, prix, client_nom:document.getElementById("mn").value.trim(), client_email:document.getElementById("me").value.trim(),
+        client_tel:document.getElementById("mt").value.trim(), adresse:document.getElementById("ma").value.trim()||"Remis en main propre", ville:document.getElementById("mv").value.trim()||"-",
+        cout_impression:r.cout_impression, cout_cadre:opt==="encadre"?r.cout_cadre:0, cout_emballage:0, cout_livraison:0, frais_paiement:0 }));
+      if (p) must(await sb.from("produits").update({vendus:(p.vendus||0)+1}).eq("id",p.id));
+      await loadAll(); dlg.close(); toast("Vente enregistrée"); shell(); render();
+    } catch(err) { document.getElementById("mm").textContent=err.message; }
+  };
+}
+
+/* ---------- ventes et marges ---------- */
+function ventes() {
+  const sold = S.commandes.filter(c=>SOLD.includes(c.statut));
+  const cost = c => Number(c.cout_impression)+Number(c.cout_cadre)+Number(c.cout_emballage)+Number(c.cout_livraison)+Number(c.frais_paiement);
+  const months = {};
+  for (const c of sold) { const d=new Date(c.paye_le||c.created_at), k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+    const m = months[k] ||= {n:0, ca:0, couts:0, frais:0}; m.n++; m.ca+=Number(c.prix); m.couts+=cost(c)-Number(c.frais_paiement); m.frais+=Number(c.frais_paiement); }
+  const keys = Object.keys(months).sort().reverse(), now = new Date(), kNow = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
+  const cur = months[kNow] || {n:0,ca:0,couts:0,frais:0}, tot = keys.reduce((a,k)=>({n:a.n+months[k].n, ca:a.ca+months[k].ca, couts:a.couts+months[k].couts, frais:a.frais+months[k].frais}),{n:0,ca:0,couts:0,frais:0});
+  const ben = m => m.ca-m.couts-m.frais, max = Math.max(1,...keys.map(k=>months[k].ca));
+  const label = k => new Date(k+"-01").toLocaleDateString("fr-FR",{month:"long",year:"numeric"});
+  const byProd = {}; for (const c of sold) { const p = byProd[c.produit_titre] ||= {n:0,ca:0}; p.n++; p.ca+=Number(c.prix); }
+  main().innerHTML = `<div class="head"><div><p class="eyebrow">Commandes payées, hors annulations</p><h1>Ventes et marges</h1></div></div>
+  <div class="kpis"><div class="kpi"><small>Ventes ce mois-ci</small><b>${money(cur.ca)}</b><small>${cur.n} commande${cur.n>1?"s":""}</small></div>
+  <div class="kpi"><small>Bénéfice ce mois-ci</small><b>${money(ben(cur))}</b><small>${cur.ca?Math.round(ben(cur)/cur.ca*100):0} % des ventes</small></div>
+  <div class="kpi"><small>Ventes depuis le début</small><b>${money(tot.ca)}</b><small>${tot.n} commandes</small></div>
+  <div class="kpi"><small>Bénéfice depuis le début</small><b>${money(ben(tot))}</b><small>après impression, cadres, emballage, livraison et frais</small></div></div>
+  ${keys.length ? `<div class="tbl"><table><thead><tr><th>Mois</th><th class="r">Commandes</th><th class="r">Ventes</th><th class="r">Coûts</th><th class="r">Frais PayPal</th><th class="r">Bénéfice</th><th style="width:22%"></th></tr></thead>
+  <tbody>${keys.map(k=>{const m=months[k]; return `<tr><td>${label(k)}</td><td class="r">${m.n}</td><td class="r">${money(m.ca)}</td><td class="r">${money(m.couts)}</td><td class="r">${money(m.frais)}</td><td class="r"><b>${money(ben(m))}</b></td><td><div class="bar" style="width:${m.ca/max*100}%"></div></td></tr>`;}).join("")}</tbody>
+  <tfoot><tr><td>Total</td><td class="r">${tot.n}</td><td class="r">${money(tot.ca)}</td><td class="r">${money(tot.couts)}</td><td class="r">${money(tot.frais)}</td><td class="r">${money(ben(tot))}</td><td></td></tr></tfoot></table></div>
+  <h2 style="font-size:18px;text-transform:uppercase;margin:28px 0 10px">Par print</h2>
+  <div class="tbl"><table><thead><tr><th>Print</th><th class="r">Vendus</th><th class="r">Ventes</th></tr></thead><tbody>${Object.entries(byProd).sort((a,b)=>b[1].ca-a[1].ca).map(([t,p])=>`<tr><td>${esc(t)}</td><td class="r">${p.n}</td><td class="r">${money(p.ca)}</td></tr>`).join("")}</tbody></table></div>`
+  : `<div class="empty">Les chiffres apparaîtront dès la première vente.</div>`}`;
+}
+
+/* ---------- stock ---------- */
+function stock() {
+  main().innerHTML = `<div class="head"><div><p class="eyebrow">Déduit automatiquement quand une commande passe « en préparation »</p><h1>Stock</h1></div><button id="add">Ajouter un article</button></div>
+  <div class="tbl"><table><thead><tr><th>Article</th><th>Quantité</th><th class="r">Alerte sous</th><th class="r">Coût unitaire ₪</th><th class="r">Par encadré</th><th class="r">Par print seul</th><th></th></tr></thead>
+  <tbody>${S.stock.map(i=>`<tr data-id="${i.id}"><td><input data-k="article" value="${esc(i.article)}"></td>
+   <td><div class="qty"><button data-d="-1" aria-label="Retirer un">−</button><b class="num">${i.quantite}</b><button data-d="1" aria-label="Ajouter un">+</button>${i.quantite<=i.seuil?`<span class="alert">À racheter</span>`:""}</div></td>
+   <td class="r"><input class="n" type="number" data-k="seuil" value="${i.seuil}"></td><td class="r"><input class="n" type="number" step="0.01" data-k="cout_unitaire" value="${i.cout_unitaire}"></td>
+   <td class="r"><input class="n" type="number" data-k="conso_encadre" value="${i.conso_encadre}"></td><td class="r"><input class="n" type="number" data-k="conso_print" value="${i.conso_print}"></td>
+   <td><button class="danger" data-del>Supprimer</button></td></tr>`).join("")}</tbody></table></div>
+  <p class="eyebrow" style="margin-top:12px;text-transform:none;letter-spacing:0">« Par encadré » et « par print seul » : combien de cet article une commande consomme.</p>`;
+  document.getElementById("add").onclick = async()=>{ must(await sb.from("stock").insert({article:"Nouvel article", ordre:S.stock.length+1})); S.stock=must(await sb.from("stock").select("*").order("ordre")); stock(); };
+  document.querySelectorAll("tr[data-id]").forEach(tr=>{
+    const it=S.stock.find(x=>x.id===tr.dataset.id);
+    tr.querySelectorAll("[data-d]").forEach(b=>b.onclick=async()=>{ it.quantite+=Number(b.dataset.d); must(await sb.from("stock").update({quantite:it.quantite}).eq("id",it.id)); shell(); stock(); });
+    tr.querySelectorAll("[data-k]").forEach(i=>i.onchange=async()=>{ const k=i.dataset.k; it[k]= k==="article"?i.value:Number(i.value)||0; must(await sb.from("stock").update({[k]:it[k]}).eq("id",it.id)); toast("Enregistré"); shell(); });
+    const del=tr.querySelector("[data-del]"); del.onclick=async()=>{ if(del.dataset.sure!=="1"){ del.dataset.sure="1"; del.textContent="Confirmer"; return; } must(await sb.from("stock").delete().eq("id",it.id)); S.stock=S.stock.filter(x=>x!==it); shell(); stock(); };
+  });
+}
+
+/* ---------- produits ---------- */
+function produits() {
+  main().innerHTML = `<div class="head"><div><p class="eyebrow">Les changements apparaissent tout de suite sur le site</p><h1>Produits</h1></div><button id="add">Ajouter un print</button></div>
+  <div class="prods">${S.produits.map(p=>`<div class="prod" data-id="${p.id}">
+   <label class="ph" title="Changer la photo">${p.image_url?`<img src="${esc(p.image_url)}" alt="">`:"Ajouter une photo"}<input type="file" accept="image/*" hidden data-photo></label>
+   <div class="fields"><input data-k="titre" value="${esc(p.titre)}" aria-label="Titre" style="font-weight:700">
+    <div class="grid2" style="grid-template-columns:1fr 1fr"><label class="f">Encadré ₪<input type="number" data-k="prix_encadre" value="${p.prix_encadre}"></label><label class="f">Print seul ₪<input type="number" data-k="prix_print" value="${p.prix_print}"></label></div>
+    <label class="f">Statut<select data-k="statut">${[["disponible","Disponible"],["epuise","Épuisé"],["masque","Masqué (invisible)"]].map(([v,l])=>`<option value="${v}"${p.statut===v?" selected":""}>${l}</option>`).join("")}</select></label>
+    <label class="f">Texte<textarea data-k="texte" rows="2">${esc(p.texte)}</textarea></label>
+    <div class="grid2" style="grid-template-columns:1fr 1fr 1fr"><label class="f">Année<input data-k="annee" value="${esc(p.annee)}"></label><label class="f">Édition<input type="number" data-k="edition" value="${p.edition}" title="0 = non limitée"></label><label class="f">Ordre<input type="number" data-k="ordre" value="${p.ordre}"></label></div>
+    <label style="display:flex;gap:8px;align-items:center;font-size:14px"><input type="checkbox" data-k="original"${p.original?" checked":""}> Original à vendre</label>
+    <p class="eyebrow" style="margin:0">${p.vendus} vendu${p.vendus>1?"s":""}${p.edition?` sur ${p.edition}`:""}</p>
+    <div class="actions"><button class="danger" data-del>Supprimer</button></div></div></div>`).join("")}</div>
+  <p class="eyebrow" style="margin-top:14px;text-transform:none;letter-spacing:0">Formats et délais affichés : onglet Réglages. Les prix encaissés sont ceux d'ici : plus besoin de modifier les liens PayPal.</p>`;
+  document.getElementById("add").onclick = async()=>{ must(await sb.from("produits").insert({titre:"Nouveau print", statut:"masque", prix_encadre:S.reglages.prix_encadre||260, prix_print:120, ordre:S.produits.length+1})); S.produits=must(await sb.from("produits").select("*").order("ordre").order("created_at")); produits(); toast("Print ajouté (masqué tant que tu ne le rends pas disponible)"); };
+  document.querySelectorAll(".prod").forEach(card=>{
+    const p=S.produits.find(x=>x.id===card.dataset.id);
+    card.querySelectorAll("[data-k]").forEach(i=>i.onchange=async()=>{ const k=i.dataset.k; p[k]= i.type==="checkbox"?i.checked : i.type==="number"?Number(i.value)||0 : i.value; must(await sb.from("produits").update({[k]:p[k]}).eq("id",p.id)); toast("Enregistré, en ligne"); });
+    card.querySelector("[data-photo]").onchange=async e=>{ const f=e.target.files[0]; if(!f) return; toast("Envoi de la photo…");
+      const path=`${p.id}/${Date.now()}-${f.name.replace(/[^\w.-]+/g,"-")}`;
+      const up=await sb.storage.from("produits").upload(path,f,{upsert:true,contentType:f.type}); if(up.error) return toast(up.error.message);
+      p.image_url=sb.storage.from("produits").getPublicUrl(path).data.publicUrl; must(await sb.from("produits").update({image_url:p.image_url}).eq("id",p.id)); produits(); toast("Photo en ligne"); };
+    const del=card.querySelector("[data-del]"); del.onclick=async()=>{ if(del.dataset.sure!=="1"){ del.dataset.sure="1"; del.textContent="Confirmer la suppression"; return; } must(await sb.from("produits").delete().eq("id",p.id)); S.produits=S.produits.filter(x=>x!==p); produits(); };
+  });
+}
+
+/* ---------- réglages ---------- */
+function reglages() {
+  const r=S.reglages, F=[["cout_impression","Coût d'une impression A3 (₪)"],["cout_cadre","Coût d'un cadre (₪)"],["cout_emballage_encadre","Emballage d'un encadré (₪)"],["cout_emballage_print","Emballage d'un print seul (₪)"],["cout_livraison","Livraison estimée par commande (₪)"],["frais_pct","Frais PayPal (%)"],["frais_fixe","Frais PayPal fixes (₪)"]];
+  main().innerHTML = `<div class="head"><div><p class="eyebrow">Coûts appliqués aux nouvelles commandes, textes du site</p><h1>Réglages</h1></div></div>
+  <div class="box"><h3>Coûts par commande</h3><div class="grid2">${F.map(([k,l])=>`<label class="f">${l}<input type="number" step="0.01" data-k="${k}" value="${r[k]}"></label>`).join("")}</div></div>
+  <div class="box" style="margin-top:12px"><h3>Textes affichés aux clients</h3>
+   <label class="f">Option « Encadré »<input data-k="format_encadre" value="${esc(r.format_encadre)}"></label>
+   <label class="f">Option « Print seul »<input data-k="format_print" value="${esc(r.format_print)}"></label>
+   <label class="f">Délai de préparation<input data-k="delai" value="${esc(r.delai)}"></label></div>`;
+  document.querySelectorAll("[data-k]").forEach(i=>i.onchange=async()=>{ const k=i.dataset.k; r[k]= i.type==="number"?Number(i.value)||0:i.value; must(await sb.from("reglages").update({[k]:r[k], updated_at:new Date().toISOString()}).eq("id",1)); toast("Enregistré"); });
+}
+
+sb.auth.getSession().then(({data:{session}})=> session ? start() : loginView());
+</script>
+</body>
+</html>

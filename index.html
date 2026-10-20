@@ -165,6 +165,27 @@ blockquote cite{display:block;margin-top:16px;font:400 13px var(--mono);font-sty
 .shop-info{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:24px clamp(24px,4vw,56px)}
 .shop-info h3{font-size:18px;text-transform:uppercase;font-weight:700}
 .shop-info p{margin:6px 0 0;color:var(--muted);font-size:15px;max-width:44ch}
+#checkout{border:0;padding:0;width:min(560px,calc(100% - 24px));max-height:calc(100% - 24px);background:var(--wall);color:var(--ink);border-radius:18px}
+#checkout::backdrop{background:rgba(0,0,0,.45)}
+.co{display:grid;gap:16px;padding:clamp(20px,4vw,32px)}
+.co-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.co-head h2{font-size:clamp(26px,4vw,34px);font-weight:800;text-transform:uppercase;letter-spacing:-.02em;line-height:1;margin-top:6px}
+.co-head .sub{font:400 12px var(--mono);color:var(--muted);letter-spacing:.04em;margin:8px 0 0}
+.co-total{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-block:1px solid var(--ink);padding:12px 0}
+.co-total b{font:500 22px var(--mono);font-variant-numeric:tabular-nums}
+.co-pay{min-height:56px}
+.suivi{display:grid;gap:28px;max-width:760px;padding-bottom:40px}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.steps li{border-top:4px solid var(--line);padding-top:10px;display:grid;gap:2px;color:var(--muted)}
+.steps li.done{border-color:var(--ink);color:var(--ink)}
+.steps li.now{border-color:var(--heart)}
+.steps b{font:700 15px var(--display);text-transform:uppercase}
+.steps span{font:400 12px var(--mono)}
+@media (max-width:560px){.steps{grid-template-columns:1fr 1fr;row-gap:16px}}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:16px;margin:0}
+.facts dt{font:500 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.facts dd{margin:4px 0 0}
+.note-msg{margin:0;padding:14px 16px;background:var(--panel);border-radius:12px;display:grid;gap:6px}
 .soon{padding-block:clamp(56px,10vw,140px);display:grid;gap:24px;justify-items:start}
 .soon h1{font-size:clamp(56px,12vw,180px);font-weight:800;line-height:.86;letter-spacing:-.035em;text-transform:uppercase}
 
@@ -245,6 +266,8 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;
   <div class="lb-foot"><button id="lbPrev">← Préc.</button><span class="lb-title" id="lbTitle"></span><button id="lbNext">Suiv. →</button></div>
 </div>
 
+<dialog id="checkout" aria-label="Commande"></dialog>
+
 <script>
 /* Les données (séries, œuvres, images du site) sont insérées par build.py
    à partir des dossiers oeuvres/ et site/ et du fichier contenu.json. */
@@ -265,21 +288,44 @@ const EVENTS = {
     gallery:D.galeries["live-painting"] || []}
 };
 
-/* ---------- boutique (boutique.json) ---------- */
-const B = D.boutique || {prints:[]};
+/* ---------- boutique ----------
+   Sans configuration : les prints viennent de boutique.json (liens PayPal ou commande par e-mail).
+   Avec SHOP_CFG rempli : les prints viennent de Supabase, la commande et le paiement se font sur le site,
+   et le client suit sa commande sur #suivi/<code>. */
+const SHOP_CFG = /*__SHOP__*/null || { url: "", anon: "", paypal: "" };
+const LIVE = !!(SHOP_CFG.url && SHOP_CFG.anon && SHOP_CFG.paypal);
+let B = D.boutique || {prints:[]};
+let liveState = LIVE ? "loading" : "off";
 const SHOP = () => (B.prints||[]).filter(p=>p.statut!=="masque");
 const money = n => `${Number(n).toLocaleString("fr-FR")} ₪`;
+const imgOf = (p,w) => p.image_url || src(p.image,w);
+function api(action, body){
+  return fetch(`${SHOP_CFG.url}/functions/v1/boutique`, {method:"POST", headers:{"Content-Type":"application/json", apikey:SHOP_CFG.anon, Authorization:`Bearer ${SHOP_CFG.anon}`}, body:JSON.stringify({action, ...body})})
+    .then(async r=>{ const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||"Le service ne répond pas."); return j; });
+}
+function loadLive(){
+  const h={apikey:SHOP_CFG.anon, Authorization:`Bearer ${SHOP_CFG.anon}`};
+  return Promise.all([
+    fetch(`${SHOP_CFG.url}/rest/v1/produits?select=*&statut=neq.masque&order=ordre.asc,created_at.asc`,{headers:h}).then(r=>{ if(!r.ok) throw 0; return r.json(); }),
+    fetch(`${SHOP_CFG.url}/rest/v1/reglages?select=format_encadre,format_print,delai&id=eq.1`,{headers:h}).then(r=>r.ok?r.json():[]),
+  ]).then(([prods,[reg]])=>{
+    B = {...B, prints:prods, format_encadre:reg?.format_encadre||B.format_encadre, format_print:reg?.format_print||B.format_print, delai:reg?.delai};
+    liveState="ready";
+  }).catch(()=>{ liveState="error"; });
+}
 function printOpts(p){
   const o=[];
-  if (+p.prix_encadre) o.push({label:"Encadré", detail:B.format_encadre, price:+p.prix_encadre, link:(p.lien_encadre||"").trim()});
-  if (+p.prix_print) o.push({label:"Print seul", detail:B.format_print, price:+p.prix_print, link:(p.lien_print||"").trim()});
+  if (+p.prix_encadre) o.push({key:"encadre", label:"Encadré", detail:B.format_encadre, price:+p.prix_encadre, link:LIVE?"":(p.lien_encadre||"").trim()});
+  if (+p.prix_print) o.push({key:"print", label:"Print seul", detail:B.format_print, price:+p.prix_print, link:LIVE?"":(p.lien_print||"").trim()});
   return o;
 }
 function printCard(p,i){
-  const out=p.statut==="epuise", pre=p.statut==="precommande", opts=printOpts(p);
+  const sold = +p.edition>0 && +p.vendus>=+p.edition;
+  const out=p.statut==="epuise"||sold, pre=p.statut==="precommande", opts=printOpts(p);
   const sub=[p.annee, +p.edition?`Édition limitée de ${p.edition} ex.`:""].filter(Boolean).map(esc).join(" · ");
+  const dims = p.w&&p.h ? ` width="${p.w}" height="${p.h}"` : "";
   return `<article class="print reveal">
-    <button class="frame" type="button" data-zoom="${i}" aria-label="Voir ${esc(p.titre)} en grand"><img loading="lazy" src="${src(p.image,800)}" width="${p.w}" height="${p.h}" alt="${esc(p.titre)}">${out?`<span class="badge out">Épuisé</span>`:pre?`<span class="badge">Précommande</span>`:""}</button>
+    <button class="frame" type="button" data-zoom="${i}" aria-label="Voir ${esc(p.titre)} en grand"><img loading="lazy" src="${esc(imgOf(p,800))}"${dims} alt="${esc(p.titre)}">${out?`<span class="badge out">Épuisé</span>`:pre?`<span class="badge">Précommande</span>`:""}</button>
     <div><h3>${esc(p.titre)}</h3>${sub?`<p class="sub">${sub}</p>`:""}</div>
     ${p.texte?`<p class="txt">${esc(p.texte)}</p>`:""}
     ${out||!opts.length?`<p class="sub">Cette édition n'est plus disponible.</p>`:`<fieldset class="opts"><legend class="sr">Option pour ${esc(p.titre)}</legend>${opts.map((o,j)=>`<label class="opt"><span class="l"><input type="radio" name="opt-${i}" value="${j}"${j?"":" checked"}><span>${esc(o.label)}${o.detail?`<small>${esc(o.detail)}</small>`:""}</span></span><b>${money(o.price)}</b></label>`).join("")}</fieldset>
@@ -288,24 +334,94 @@ function printCard(p,i){
   </article>`;
 }
 function wireShop(){
+  if (liveState==="loading"){ loadLive().then(()=>{ if((location.hash.slice(1)||"accueil")==="boutique") render(); }); return; }
   const list=SHOP();
-  document.querySelectorAll("[data-zoom]").forEach(b=>b.addEventListener("click",()=>openLB(list.map(p=>({src:src(p.image,1600),alt:p.titre,cap:p.titre})),+b.dataset.zoom)));
+  document.querySelectorAll("[data-zoom]").forEach(b=>b.addEventListener("click",()=>openLB(list.map(p=>({src:imgOf(p,1600),alt:p.titre,cap:p.titre})),+b.dataset.zoom)));
   document.querySelectorAll("[data-buy]").forEach(a=>{
     const i=+a.dataset.buy, p=list[i], opts=printOpts(p), note=document.querySelector(`[data-note="${i}"]`);
     const pick=()=>opts[+(document.querySelector(`input[name="opt-${i}"]:checked`)||{value:0}).value];
     const sync=()=>{
       const o=pick();
-      if (o.link){ a.href=o.link; a.target="_blank"; a.rel="noopener"; note.textContent=`${money(o.price)}, livraison incluse. Paiement sécurisé par carte, Apple Pay ou PayPal.`; }
+      if (LIVE && liveState==="ready"){ a.href="#boutique"; a.removeAttribute("target"); note.textContent=`${money(o.price)}, livraison à domicile incluse. Paiement sécurisé par carte ou PayPal.`; }
+      else if (o.link){ a.href=o.link; a.target="_blank"; a.rel="noopener"; note.textContent=`${money(o.price)}, livraison incluse. Paiement sécurisé par carte, Apple Pay ou PayPal.`; }
       else { a.href="#contact"; a.removeAttribute("target"); note.textContent=`${money(o.price)}, livraison incluse. Vous recevez la confirmation et le lien de paiement par e-mail.`; }
     };
     document.querySelectorAll(`input[name="opt-${i}"]`).forEach(r=>r.addEventListener("change",sync));
-    a.addEventListener("click",()=>{
-      const o=pick(); if (o.link) return;
+    a.addEventListener("click",e=>{
+      const o=pick();
+      if (LIVE && liveState==="ready"){ e.preventDefault(); openCheckout(p,o); return; }
+      if (o.link) return;
       sessionSubject="Commande boutique";
-      sessionMessage=`Bonjour, je souhaite ${p.statut==="precommande"?"précommander":"commander"} « ${p.titre} » : ${o.label.toLowerCase()} (${money(o.price)}, livraison incluse).\n\nAdresse de livraison (ou retrait à l'atelier) :\nTéléphone :`;
+      sessionMessage=`Bonjour, je souhaite ${p.statut==="precommande"?"précommander":"commander"} « ${p.titre} » : ${o.label.toLowerCase()} (${money(o.price)}, livraison incluse).\n\nAdresse de livraison :\nTéléphone :`;
     });
     sync();
   });
+}
+
+/* ---------- commande et paiement (mode en ligne) ---------- */
+let paypalSdk=null;
+function loadPaypal(){
+  if (paypalSdk) return paypalSdk;
+  paypalSdk = new Promise((ok,ko)=>{ const s=document.createElement("script");
+    s.src=`https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(SHOP_CFG.paypal)}&currency=ILS&intent=capture&components=buttons&locale=fr_FR`;
+    s.onload=()=>ok(window.paypal); s.onerror=()=>{ paypalSdk=null; ko(new Error("PayPal ne s'est pas chargé.")); }; document.head.appendChild(s); });
+  return paypalSdk;
+}
+function openCheckout(p,o){
+  const dlg=document.getElementById("checkout");
+  dlg.innerHTML=`<form class="co" id="coForm" novalidate>
+    <div class="co-head"><div><p class="eyebrow">Commande</p><h2>${esc(p.titre)}</h2><p class="sub">${esc(o.label)} · ${esc(o.detail||"")}</p></div><button type="button" class="copy" id="coClose">Fermer</button></div>
+    <div class="co-total"><span>Total, livraison à domicile incluse</span><b>${money(o.price)}</b></div>
+    <div class="row2"><div class="field"><label for="co-nom">Nom complet</label><input id="co-nom" name="nom" autocomplete="name" required></div>
+    <div class="field"><label for="co-tel">Téléphone</label><input id="co-tel" name="tel" type="tel" autocomplete="tel" required></div></div>
+    <div class="field"><label for="co-email">E-mail (pour le bon de commande et le suivi)</label><input id="co-email" name="email" type="email" autocomplete="email" required></div>
+    <div class="field"><label for="co-adresse">Adresse de livraison</label><input id="co-adresse" name="adresse" autocomplete="street-address" required placeholder="Rue, numéro, appartement, étage"></div>
+    <div class="row2"><div class="field"><label for="co-ville">Ville</label><input id="co-ville" name="ville" autocomplete="address-level2" required></div>
+    <div class="field"><label for="co-cp">Code postal</label><input id="co-cp" name="code_postal" autocomplete="postal-code"></div></div>
+    <div class="field"><label for="co-note">Note (facultatif)</label><textarea id="co-note" name="note" rows="2" style="min-height:64px" placeholder="Code d'entrée, disponibilités…"></textarea></div>
+    <input type="text" name="site" tabindex="-1" autocomplete="off" style="display:none" aria-hidden="true">
+    <p class="form-note">Livraison à domicile partout en Israël, préparée sous ${esc(B.delai||"5 à 7 jours")}. Vous recevez un bon de commande par e-mail et un lien pour suivre votre commande.</p>
+    <div id="coPay" class="co-pay"><p class="form-note">Chargement du paiement…</p></div>
+    <p class="ok" id="coMsg" role="status" hidden></p>
+  </form>`;
+  dlg.showModal();
+  document.getElementById("coClose").onclick=()=>dlg.close();
+  const f=document.getElementById("coForm"), msg=document.getElementById("coMsg");
+  const say=t=>{ msg.hidden=!t; msg.textContent=t||""; };
+  const client=()=>{ const d=new FormData(f); return {nom:d.get("nom"),tel:d.get("tel"),email:d.get("email"),adresse:d.get("adresse"),ville:d.get("ville"),code_postal:d.get("code_postal"),note:d.get("note")}; };
+  loadPaypal().then(pp=>{
+    document.getElementById("coPay").innerHTML="";
+    pp.Buttons({
+      style:{layout:"vertical", shape:"pill", label:"pay", height:48},
+      onClick:(data,actions)=>{ say(""); if(!f.reportValidity()){ say("Merci de remplir vos coordonnées avant de payer."); return actions.reject(); } return actions.resolve(); },
+      createOrder:()=>api("creer",{produit_id:p.id, option:o.key, client:client(), site:new FormData(f).get("site")}).then(r=>r.paypal_id).catch(e=>{ say(e.message); throw e; }),
+      onApprove:d=>{ say("Paiement en cours de validation…"); return api("capturer",{paypal_id:d.orderID}).then(r=>{
+        dlg.innerHTML=`<div class="co"><div class="co-head"><div><p class="eyebrow">Commande ${esc(r.numero)}</p><h2>Merci<span class="heart">.</span></h2></div><button type="button" class="copy" id="coClose2">Fermer</button></div>
+        <p class="lede" style="margin:0">Votre paiement est bien reçu. Le bon de commande vient de partir à votre adresse e-mail, avec un lien pour suivre votre commande.</p>
+        <a class="btn" href="#suivi/${esc(r.token)}" id="coTrack">Suivre ma commande</a></div>`;
+        document.getElementById("coClose2").onclick=()=>dlg.close(); document.getElementById("coTrack").onclick=()=>dlg.close();
+      }).catch(e=>say(e.message)); },
+      onError:()=>say("Le paiement n'a pas abouti. Vous n'avez pas été débité. Réessayez ou écrivez-nous."),
+    }).render("#coPay");
+  }).catch(e=>{ document.getElementById("coPay").innerHTML=""; say(e.message+" Réessayez dans un instant."); });
+}
+
+/* ---------- suivi de commande (client) ---------- */
+const STEPS=[["payee","Payée"],["en_preparation","En préparation"],["expediee","Expédiée"],["livree","Livrée"]];
+function suiviPage(token){
+  setTimeout(()=>{
+    api("suivi",{token}).then(c=>{
+      const at=STEPS.findIndex(s=>s[0]===c.statut), when=s=>{ const h=(c.historique||[]).filter(x=>x.statut===s).pop(); return h?new Date(h.created_at).toLocaleDateString("fr-FR",{day:"numeric",month:"long"}):""; };
+      document.getElementById("suiviBody").innerHTML = (c.statut==="annulee" ? `<p class="lede">Cette commande a été annulée.</p>` :
+        `<ol class="steps">${STEPS.map((s,i)=>`<li class="${i<=at?"done":""}${i===at?" now":""}"><b>${s[1]}</b><span>${when(s[0])}</span></li>`).join("")}</ol>`) +
+        `<dl class="facts"><div><dt>Œuvre</dt><dd>${esc(c.produit)}</dd></div><div><dt>Option</dt><dd>${esc(c.option)}</dd></div><div><dt>Total</dt><dd>${money(c.prix)}</dd></div><div><dt>Livraison</dt><dd>À domicile, ${esc(c.ville)}</dd></div>
+        ${c.transporteur||c.suivi_numero?`<div><dt>Colis</dt><dd>${esc(c.transporteur)} ${esc(c.suivi_numero)}${c.suivi_url?` · <a href="${esc(c.suivi_url)}" target="_blank" rel="noopener">suivre le colis</a>`:""}</dd></div>`:""}</dl>
+        ${(c.historique||[]).filter(h=>h.message).map(h=>`<p class="note-msg"><span class="eyebrow">${esc(h.label)}</span>${esc(h.message)}</p>`).join("")}`;
+      document.getElementById("suiviNum").textContent=`Commande ${c.numero}`;
+    }).catch(e=>{ document.getElementById("suiviBody").innerHTML=`<p class="lede">${esc(e.message)} Vérifiez le lien reçu par e-mail, ou écrivez-nous.</p>`; });
+  });
+  return `<div class="wrap page-head reveal"><p class="eyebrow" id="suiviNum">Suivi de commande</p><h1>Ma commande<span class="heart">.</span></h1></div>
+  <div class="wrap suivi" id="suiviBody"><p class="form-note">Chargement…</p></div>`;
 }
 
 /* ---------- rendering ---------- */
@@ -355,6 +471,7 @@ const ROUTES = {
     <div class="wrap"><a class="btn" href="#contact" data-subject="Réservation événement">Réserver une date</a></div>`;
   },
   boutique(){
+    if (liveState==="loading") return head("Boutique", `${esc(B.titre||"Prints")}<span class="heart">.</span>`, B.intro||"")+`<div class="wrap"><p class="form-note">Chargement des prints…</p></div>`;
     const list = SHOP();
     if (!list.length) return `<div class="wrap soon reveal"><p class="eyebrow">Boutique</p><h1>Coming<br>soon<span class="heart">.</span></h1>
     <p class="lede">La boutique en ligne arrive bientôt. En attendant, pour une œuvre ou une commande personnalisée, écrivez-nous.</p>
@@ -414,7 +531,7 @@ function render(){
     html += `<section class="wrap"><div class="sec-head"><h2>Autres séries</h2></div><div class="colls">${others.map(c=>`<a class="coll" href="#${c.slug}"><div class="frame"><img loading="lazy" src="${src(c.cover,800)}" alt="${esc(c.name)}"></div><div class="meta"><h3>${esc(c.name)}</h3><span class="count">${String(c.works.length).padStart(2,"0")} œuvres</span></div></a>`).join("")}</div></section>`;
     LBSRC = {lists:[coll.banners?coll.banners.slice(0,3).map(b=>[b[0],b[1]]):null, coll.works]};
   } else {
-    html = (ROUTES[route]||ROUTES.accueil)();
+    html = route.startsWith("suivi/") && LIVE ? suiviPage(route.slice(6)) : (ROUTES[route]||ROUTES.accueil)();
   }
   app.innerHTML = html;
   document.querySelectorAll(".nav a").forEach(a=>{

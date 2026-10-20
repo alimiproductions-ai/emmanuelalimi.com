@@ -119,10 +119,17 @@ if os.path.exists("boutique.json"):
     print("boutique", len(prints), "prints")
 
 data = {"series": series, "galeries": {k: [w[:4] for w in v] for k, v in galeries.items()}, "site": site, "boutique": boutique}
+# Boutique en ligne (Supabase + PayPal) : boutique-config.json, vide tant que ce n'est pas configuré.
+shop = json.load(open("boutique-config.json", encoding="utf-8")) if os.path.exists("boutique-config.json") else None
+shop_js = json.dumps(shop) if shop else "null"
+
 html = open("index.html", encoding="utf-8").read()
-html = html.replace("/*__DATA__*/null", json.dumps(data, ensure_ascii=False))
+html = html.replace("/*__DATA__*/null", json.dumps(data, ensure_ascii=False)).replace("/*__SHOP__*/null", shop_js)
 open(f"{OUT}/index.html", "w", encoding="utf-8").write(html)
 open(f"{OUT}/404.html", "w", encoding="utf-8").write(html)
+if os.path.exists("admin.html"):
+    adm = open("admin.html", encoding="utf-8").read().replace("/*__SHOP__*/null", shop_js)
+    open(f"{OUT}/admin.html", "w", encoding="utf-8").write(adm)
 if os.path.exists("CNAME"):
     shutil.copy("CNAME", f"{OUT}/CNAME")
 print(len(series), "séries,", sum(len(v) for v in galeries.values()), "images")
