@@ -21,6 +21,7 @@ create table if not exists public.reglages (
   format_encadre text not null default 'A3 sous passe-partout, cadre noir 40×50 cm',
   format_print text not null default 'Impression A3 (29,7×42 cm), sans cadre',
   delai text not null default '5 à 7 jours',
+  zones jsonb not null default '[{"code":"IL","nom":"Israël","encadre":0,"print":0},{"code":"FR","nom":"France","encadre":150,"print":50},{"code":"NA","nom":"États-Unis et Canada","encadre":200,"print":70},{"code":"WW","nom":"Reste du monde","encadre":220,"print":80}]'::jsonb, -- supplément livraison par zone
   updated_at timestamptz not null default now()
 );
 insert into public.reglages (id) values (1) on conflict do nothing;
@@ -61,6 +62,9 @@ create table if not exists public.commandes (
   adresse text not null,
   ville text not null,
   code_postal text default '',
+  pays text not null default 'Israël',
+  zone text not null default 'IL',
+  frais_livraison numeric not null default 0,  -- part de livraison incluse dans prix
   note_client text default '',
   note_interne text default '',
   source text not null default 'site' check (source in ('site','manuel')),
