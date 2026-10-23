@@ -48,13 +48,78 @@
       "statut": "disponible",
       "original": false,
       "edition": 0
+    },
+    {
+      "titre": "Mordekhai The Jew",
+      "image": "boutique/mordekhai-the-jew.webp",
+      "annee": "2021",
+      "texte": "Mordekhaï sortit de chez le roi en habit royal.",
+      "prix_encadre": 260,
+      "lien_encadre": "",
+      "prix_print": 120,
+      "lien_print": "",
+      "statut": "disponible",
+      "original": false,
+      "edition": 0
+    },
+    {
+      "titre": "Lekha Dodi",
+      "image": "boutique/lekha-dodi.webp",
+      "annee": "2022",
+      "texte": "It's all about love.",
+      "prix_encadre": 260,
+      "lien_encadre": "",
+      "prix_print": 120,
+      "lien_print": "",
+      "statut": "disponible",
+      "original": false,
+      "edition": 0
+    },
+    {
+      "titre": "Happiness Without Any Reasons",
+      "image": "boutique/happiness-without-any-reasons.webp",
+      "annee": "2024",
+      "texte": "Le bonheur, sans raison.",
+      "prix_encadre": 260,
+      "lien_encadre": "",
+      "prix_print": 120,
+      "lien_print": "",
+      "statut": "disponible",
+      "original": false,
+      "edition": 0
+    },
+    {
+      "titre": "Pray",
+      "image": "boutique/pray.webp",
+      "annee": "2023",
+      "texte": "Chanter, taper des mains, sauter, danser : tout fait partie de la prière.",
+      "prix_encadre": 260,
+      "lien_encadre": "",
+      "prix_print": 120,
+      "lien_print": "",
+      "statut": "disponible",
+      "original": false,
+      "edition": 0
+    },
+    {
+      "titre": "Fishlove",
+      "image": "boutique/fishlove.webp",
+      "annee": "2023",
+      "texte": "Droite, gauche, droite, gauche : pour avancer, un poisson doit onduler.",
+      "prix_encadre": 260,
+      "lien_encadre": "",
+      "prix_print": 120,
+      "lien_print": "",
+      "statut": "disponible",
+      "original": false,
+      "edition": 0
     }
   ],
   "originaux": "Les toiles originales ne sont pas vendues en ligne. Pour acquérir une œuvre d'une collection ou en commander une, écrivez-nous : réponse sous 48 h avec le prix et les détails.",
   "infos": [
     {
       "titre": "Livraison",
-      "texte": "Livrée à domicile partout en Israël, en colis protégé."
+      "texte": "Livrée à domicile, incluse partout en Israël. Envoi en France, en Amérique du Nord et dans le monde avec supplément."
     },
     {
       "titre": "Paiement",

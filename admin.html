@@ -248,9 +248,9 @@ async function orderPanel(id) {
    <div class="dlg-head"><div><p class="eyebrow">${dt(c.paye_le||c.created_at)} · ${c.source==="manuel"?"vente hors site":"site"}</p><h2>AL-${c.numero}</h2></div><div class="actions">${pill(c.statut)}<button id="x">Fermer</button></div></div>
    <div class="grid2">
     <div class="box"><h3>Client</h3><dl class="kv"><dt>Nom</dt><dd>${esc(c.client_nom)}</dd><dt>E-mail</dt><dd><a href="mailto:${esc(c.client_email)}">${esc(c.client_email)}</a></dd><dt>Téléphone</dt><dd><a href="tel:${esc(c.client_tel)}">${esc(c.client_tel)}</a></dd>
-      <dt>Adresse</dt><dd id="addr">${esc(c.adresse)}<br>${esc(c.code_postal)} ${esc(c.ville)}</dd>${c.note_client?`<dt>Note</dt><dd>${esc(c.note_client)}</dd>`:""}</dl>
+      <dt>Adresse</dt><dd id="addr">${esc(c.adresse)}<br>${esc(c.code_postal)} ${esc(c.ville)}${c.pays&&c.pays!=="Israël"?`<br><b>${esc(c.pays)}</b>`:""}</dd>${c.note_client?`<dt>Note</dt><dd>${esc(c.note_client)}</dd>`:""}</dl>
       <div class="actions"><button id="cpy">Copier l'adresse</button></div></div>
-    <div class="box"><h3>Commande</h3><dl class="kv"><dt>Œuvre</dt><dd>${esc(c.produit_titre)}</dd><dt>Option</dt><dd>${OPT[c.option]}<br><span class="eyebrow" style="text-transform:none;letter-spacing:0">${esc(c.option_detail)}</span></dd><dt>Payé</dt><dd class="num">${money(c.prix)}</dd>${c.paypal_capture_id?`<dt>PayPal</dt><dd class="num">${esc(c.paypal_capture_id)}</dd>`:""}${c.transporteur||c.suivi_numero?`<dt>Colis</dt><dd>${esc(c.transporteur)} ${esc(c.suivi_numero)}</dd>`:""}</dl></div>
+    <div class="box"><h3>Commande</h3><dl class="kv"><dt>Œuvre</dt><dd>${esc(c.produit_titre)}</dd><dt>Option</dt><dd>${OPT[c.option]}<br><span class="eyebrow" style="text-transform:none;letter-spacing:0">${esc(c.option_detail)}</span></dd><dt>Payé</dt><dd class="num">${money(c.prix)}</dd>${+c.frais_livraison?`<dt>Dont livraison</dt><dd class="num">${money(c.frais_livraison)} · ${esc(c.pays)}</dd>`:""}${c.paypal_capture_id?`<dt>PayPal</dt><dd class="num">${esc(c.paypal_capture_id)}</dd>`:""}${c.transporteur||c.suivi_numero?`<dt>Colis</dt><dd>${esc(c.transporteur)} ${esc(c.suivi_numero)}</dd>`:""}</dl></div>
    </div>
    ${c.statut!=="annulee"&&c.statut!=="livree" ? `<div class="box"><h3>${next?`Passer à « ${STATUTS[next]} »`:"Statut"}</h3>
      ${next==="expediee"||c.statut==="expediee" ? `<div class="grid2"><label class="f">Transporteur<input id="tr" list="trs" value="${esc(c.transporteur)}" placeholder="GetPackage, HFD…"></label><label class="f">Numéro de suivi<input id="sn" value="${esc(c.suivi_numero)}"></label></div><label class="f">Lien de suivi du colis<input id="su" type="url" value="${esc(c.suivi_url)}" placeholder="https://"></label><label class="f">Coût réel de la livraison (₪)<input id="cl" type="number" step="1" value="${c.cout_livraison}"></label><datalist id="trs"><option>GetPackage</option><option>HFD</option><option>Poste israélienne</option><option>Livraison en main propre</option></datalist>`:""}
@@ -267,7 +267,7 @@ async function orderPanel(id) {
   </div>`;
   dlg.showModal();
   document.getElementById("x").onclick = () => dlg.close();
-  document.getElementById("cpy").onclick = () => { const t=`${c.client_nom}\n${c.adresse}\n${c.code_postal} ${c.ville}\n${c.client_tel}`; navigator.clipboard?.writeText(t).then(()=>toast("Adresse copiée"),()=>toast("Copie impossible")); };
+  document.getElementById("cpy").onclick = () => { const t=`${c.client_nom}\n${c.adresse}\n${c.code_postal} ${c.ville}${c.pays&&c.pays!=="Israël"?`\n${c.pays}`:""}\n${c.client_tel}`; navigator.clipboard?.writeText(t).then(()=>toast("Adresse copiée"),()=>toast("Copie impossible")); };
   const rs = document.getElementById("rs"); if (rs) rs.onclick = async()=>{ rs.disabled=true; try{ const r=await fn("renvoyer",{commande_id:c.id}); toast(r.email_envoye?"Bon de commande renvoyé":"L'e-mail n'est pas parti"); }catch(e){ toast(e.message); } rs.disabled=false; };
   document.querySelectorAll("[data-cost]").forEach(i=>i.onchange=async()=>{ c[i.dataset.cost]=Number(i.value)||0; must(await sb.from("commandes").update({[i.dataset.cost]:c[i.dataset.cost]}).eq("id",c.id)); toast("Coût enregistré"); });
   document.getElementById("ni").onchange = async e => { c.note_interne=e.target.value; must(await sb.from("commandes").update({note_interne:c.note_interne}).eq("id",c.id)); toast("Note enregistrée"); };
@@ -387,6 +387,11 @@ function reglages() {
   const r=S.reglages, F=[["cout_impression","Coût d'une impression A3 (₪)"],["cout_cadre","Coût d'un cadre (₪)"],["cout_emballage_encadre","Emballage d'un encadré (₪)"],["cout_emballage_print","Emballage d'un print seul (₪)"],["cout_livraison","Livraison estimée par commande (₪)"],["frais_pct","Frais PayPal (%)"],["frais_fixe","Frais PayPal fixes (₪)"]];
   main().innerHTML = `<div class="head"><div><p class="eyebrow">Coûts appliqués aux nouvelles commandes, textes du site</p><h1>Réglages</h1></div></div>
   <div class="box"><h3>Coûts par commande</h3><div class="grid2">${F.map(([k,l])=>`<label class="f">${l}<input type="number" step="0.01" data-k="${k}" value="${r[k]}"></label>`).join("")}</div></div>
+  <div class="box" style="margin-top:12px"><h3>Livraison par zone</h3>
+   <p style="margin:0;font-size:14px;color:var(--muted)">Supplément payé par le client en plus du prix du print. 0 = livraison incluse. La première ligne est la zone proposée par défaut.</p>
+   <div class="tbl"><table><thead><tr><th>Zone affichée au client</th><th class="r">Encadré ₪</th><th class="r">Print seul ₪</th><th></th></tr></thead>
+   <tbody>${zonesR().map((z,i)=>`<tr data-z="${i}"><td><input data-zk="nom" value="${esc(z.nom)}"></td><td class="r"><input class="n" type="number" data-zk="encadre" value="${+z.encadre||0}"></td><td class="r"><input class="n" type="number" data-zk="print" value="${+z.print||0}"></td><td>${i?`<button class="danger" data-zdel>Retirer</button>`:""}</td></tr>`).join("")}</tbody></table></div>
+   <div class="actions"><button id="zadd">Ajouter une zone</button></div></div>
   <div class="box" style="margin-top:12px"><h3>Textes affichés aux clients</h3>
    <label class="f">Option « Encadré »<input data-k="format_encadre" value="${esc(r.format_encadre)}"></label>
    <label class="f">Option « Print seul »<input data-k="format_print" value="${esc(r.format_print)}"></label>
@@ -405,7 +410,13 @@ function reglages() {
     document.getElementById("pw1").value = document.getElementById("pw2").value = ""; m.textContent = ""; toast("Mot de passe enregistré");
   };
   document.querySelectorAll("[data-k]").forEach(i=>i.onchange=async()=>{ const k=i.dataset.k; r[k]= i.type==="number"?Number(i.value)||0:i.value; must(await sb.from("reglages").update({[k]:r[k], updated_at:new Date().toISOString()}).eq("id",1)); toast("Enregistré"); });
+  const saveZones=async()=>{ must(await sb.from("reglages").update({zones:r.zones, updated_at:new Date().toISOString()}).eq("id",1)); toast("Zones enregistrées, en ligne"); };
+  document.querySelectorAll("tr[data-z]").forEach(tr=>{ const z=zonesR()[+tr.dataset.z];
+    tr.querySelectorAll("[data-zk]").forEach(i=>i.onchange=()=>{ z[i.dataset.zk]= i.type==="number"?Number(i.value)||0:i.value.trim(); saveZones(); });
+    const d=tr.querySelector("[data-zdel]"); if(d) d.onclick=async()=>{ if(d.dataset.sure!=="1"){ d.dataset.sure="1"; d.textContent="Confirmer"; return; } r.zones=zonesR().filter(x=>x!==z); await saveZones(); reglages(); }; });
+  document.getElementById("zadd").onclick=async()=>{ r.zones=[...zonesR(),{code:"Z"+Date.now().toString(36).slice(-4).toUpperCase(),nom:"Nouvelle zone",encadre:0,print:0}]; await saveZones(); reglages(); };
 }
+function zonesR(){ const r=S.reglages; if(!Array.isArray(r.zones)||!r.zones.length) r.zones=[{code:"IL",nom:"Israël",encadre:0,print:0}]; return r.zones; }
 
 sb.auth.onAuthStateChange((event) => { if (event === "SIGNED_IN") start(); });
 sb.auth.getSession().then(({data:{session}})=> session ? start() : loginView());

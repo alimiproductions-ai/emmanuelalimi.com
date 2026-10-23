@@ -174,6 +174,7 @@ blockquote cite{display:block;margin-top:16px;font:400 13px var(--mono);font-sty
 .co-total{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-block:1px solid var(--ink);padding:12px 0}
 .co-total b{font:500 22px var(--mono);font-variant-numeric:tabular-nums}
 .co-pay{min-height:56px}
+.co-lines{margin:0;display:grid;gap:4px}.co-lines div{display:flex;justify-content:space-between;gap:12px;font-size:14px}.co-lines dt{color:var(--muted)}.co-lines dd{margin:0;font:400 14px var(--mono);font-variant-numeric:tabular-nums}
 .suivi{display:grid;gap:28px;max-width:760px;padding-bottom:40px}
 .steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 .steps li{border-top:4px solid var(--line);padding-top:10px;display:grid;gap:2px;color:var(--muted)}
@@ -307,12 +308,13 @@ function loadLive(){
   const h={apikey:SHOP_CFG.anon, Authorization:`Bearer ${SHOP_CFG.anon}`};
   return Promise.all([
     fetch(`${SHOP_CFG.url}/rest/v1/produits?select=*&statut=neq.masque&order=ordre.asc,created_at.asc`,{headers:h}).then(r=>{ if(!r.ok) throw 0; return r.json(); }),
-    fetch(`${SHOP_CFG.url}/rest/v1/reglages?select=format_encadre,format_print,delai&id=eq.1`,{headers:h}).then(r=>r.ok?r.json():[]),
+    fetch(`${SHOP_CFG.url}/rest/v1/reglages?select=format_encadre,format_print,delai,zones&id=eq.1`,{headers:h}).then(r=>r.ok?r.json():[]),
   ]).then(([prods,[reg]])=>{
-    B = {...B, prints:prods, format_encadre:reg?.format_encadre||B.format_encadre, format_print:reg?.format_print||B.format_print, delai:reg?.delai};
+    B = {...B, prints:prods, format_encadre:reg?.format_encadre||B.format_encadre, format_print:reg?.format_print||B.format_print, delai:reg?.delai, zones:Array.isArray(reg?.zones)&&reg.zones.length?reg.zones:null};
     liveState="ready";
   }).catch(()=>{ liveState="error"; });
 }
+const ZONES=()=>B.zones||[{code:"IL",nom:"Israël",encadre:0,print:0}];
 function printOpts(p){
   const o=[];
   if (+p.prix_encadre) o.push({key:"encadre", label:"Encadré", detail:B.format_encadre, price:+p.prix_encadre, link:LIVE?"":(p.lien_encadre||"").trim()});
@@ -342,7 +344,7 @@ function wireShop(){
     const pick=()=>opts[+(document.querySelector(`input[name="opt-${i}"]:checked`)||{value:0}).value];
     const sync=()=>{
       const o=pick();
-      if (LIVE && liveState==="ready"){ a.href="#boutique"; a.removeAttribute("target"); note.textContent=`${money(o.price)}, livraison à domicile incluse. Paiement sécurisé par carte ou PayPal.`; }
+      if (LIVE && liveState==="ready"){ a.href="#boutique"; a.removeAttribute("target"); note.textContent=`${money(o.price)}, livraison à domicile incluse en Israël.${ZONES().length>1?" Envoi possible à l'étranger (supplément calculé à la commande).":""}`; }
       else if (o.link){ a.href=o.link; a.target="_blank"; a.rel="noopener"; note.textContent=`${money(o.price)}, livraison incluse. Paiement sécurisé par carte, Apple Pay ou PayPal.`; }
       else { a.href="#contact"; a.removeAttribute("target"); note.textContent=`${money(o.price)}, livraison incluse. Vous recevez la confirmation et le lien de paiement par e-mail.`; }
     };
@@ -371,16 +373,19 @@ function openCheckout(p,o){
   const dlg=document.getElementById("checkout");
   dlg.innerHTML=`<form class="co" id="coForm" novalidate>
     <div class="co-head"><div><p class="eyebrow">Commande</p><h2>${esc(p.titre)}</h2><p class="sub">${esc(o.label)} · ${esc(o.detail||"")}</p></div><button type="button" class="copy" id="coClose">Fermer</button></div>
-    <div class="co-total"><span>Total, livraison à domicile incluse</span><b>${money(o.price)}</b></div>
+    <div class="field"><label for="co-zone">Livraison</label><select id="co-zone" name="zone">${ZONES().map(z=>`<option value="${esc(z.code)}">${esc(z.nom)}${+z[o.key]?` (+${money(z[o.key])})`:" (incluse)"}</option>`).join("")}</select></div>
+    <dl class="co-lines"><div><dt>${esc(o.label)}</dt><dd>${money(o.price)}</dd></div><div><dt id="coShipL">Livraison à domicile</dt><dd id="coShip">Incluse</dd></div></dl>
+    <div class="co-total"><span>Total</span><b id="coTot">${money(o.price)}</b></div>
     <div class="row2"><div class="field"><label for="co-nom">Nom complet</label><input id="co-nom" name="nom" autocomplete="name" required></div>
     <div class="field"><label for="co-tel">Téléphone</label><input id="co-tel" name="tel" type="tel" autocomplete="tel" required></div></div>
     <div class="field"><label for="co-email">E-mail (pour le bon de commande et le suivi)</label><input id="co-email" name="email" type="email" autocomplete="email" required></div>
     <div class="field"><label for="co-adresse">Adresse de livraison</label><input id="co-adresse" name="adresse" autocomplete="street-address" required placeholder="Rue, numéro, appartement, étage"></div>
     <div class="row2"><div class="field"><label for="co-ville">Ville</label><input id="co-ville" name="ville" autocomplete="address-level2" required></div>
     <div class="field"><label for="co-cp">Code postal</label><input id="co-cp" name="code_postal" autocomplete="postal-code"></div></div>
+    <div class="field" id="coPaysF" hidden><label for="co-pays">Pays</label><input id="co-pays" name="pays" autocomplete="country-name"></div>
     <div class="field"><label for="co-note">Note (facultatif)</label><textarea id="co-note" name="note" rows="2" style="min-height:64px" placeholder="Code d'entrée, disponibilités…"></textarea></div>
     <input type="text" name="site" tabindex="-1" autocomplete="off" style="display:none" aria-hidden="true">
-    <p class="form-note">Livraison à domicile partout en Israël, préparée sous ${esc(B.delai||"5 à 7 jours")}. Vous recevez un bon de commande par e-mail et un lien pour suivre votre commande.</p>
+    <p class="form-note" id="coDelai">Préparée à l'atelier sous ${esc(B.delai||"5 à 7 jours")}, puis livrée à domicile. Vous recevez un bon de commande par e-mail et un lien pour suivre votre commande.</p>
     <div id="coPay" class="co-pay"><p class="form-note">Chargement du paiement…</p></div>
     <p class="ok" id="coMsg" role="status" hidden></p>
   </form>`;
@@ -388,13 +393,23 @@ function openCheckout(p,o){
   document.getElementById("coClose").onclick=()=>dlg.close();
   const f=document.getElementById("coForm"), msg=document.getElementById("coMsg");
   const say=t=>{ msg.hidden=!t; msg.textContent=t||""; };
-  const client=()=>{ const d=new FormData(f); return {nom:d.get("nom"),tel:d.get("tel"),email:d.get("email"),adresse:d.get("adresse"),ville:d.get("ville"),code_postal:d.get("code_postal"),note:d.get("note")}; };
+  const client=()=>{ const d=new FormData(f); return {nom:d.get("nom"),tel:d.get("tel"),email:d.get("email"),adresse:d.get("adresse"),ville:d.get("ville"),code_postal:d.get("code_postal"),pays:d.get("pays")||"",note:d.get("note")}; };
+  const zSel=document.getElementById("co-zone"), paysF=document.getElementById("coPaysF"), pays=document.getElementById("co-pays");
+  const zone=()=>ZONES().find(z=>z.code===zSel.value)||ZONES()[0];
+  const syncZone=()=>{ const z=zone(), fee=+z[o.key]||0, il=z.code==="IL";
+    document.getElementById("coShipL").textContent=il?"Livraison à domicile":`Livraison, ${z.nom}`;
+    document.getElementById("coShip").textContent=fee?money(fee):"Incluse";
+    document.getElementById("coTot").textContent=money(o.price+fee);
+    paysF.hidden=il; pays.required=!il; if(!il && (!pays.value||pays.dataset.auto)){ pays.value=z.code==="FR"?"France":""; pays.dataset.auto=pays.value?"1":""; }
+    document.getElementById("co-tel").previousElementSibling.textContent=il?"Téléphone":"Téléphone (avec indicatif)"; };
+  pays.addEventListener("input",()=>{ pays.dataset.auto=""; });
+  zSel.addEventListener("change",syncZone); syncZone();
   loadPaypal().then(pp=>{
     document.getElementById("coPay").innerHTML="";
     pp.Buttons({
       style:{layout:"vertical", shape:"pill", label:"pay", height:48},
       onClick:(data,actions)=>{ say(""); if(!f.reportValidity()){ say("Merci de remplir vos coordonnées avant de payer."); return actions.reject(); } return actions.resolve(); },
-      createOrder:()=>api("creer",{produit_id:p.id, option:o.key, client:client(), site:new FormData(f).get("site")}).then(r=>r.paypal_id).catch(e=>{ say(e.message); throw e; }),
+      createOrder:()=>api("creer",{produit_id:p.id, option:o.key, zone:zone().code, client:client(), site:new FormData(f).get("site")}).then(r=>r.paypal_id).catch(e=>{ say(e.message); throw e; }),
       onApprove:d=>{ say("Paiement en cours de validation…"); return api("capturer",{paypal_id:d.orderID}).then(r=>{
         dlg.innerHTML=`<div class="co"><div class="co-head"><div><p class="eyebrow">Commande ${esc(r.numero)}</p><h2>Merci<span class="heart">.</span></h2></div><button type="button" class="copy" id="coClose2">Fermer</button></div>
         <p class="lede" style="margin:0">Votre paiement est bien reçu. Le bon de commande vient de partir à votre adresse e-mail, avec un lien pour suivre votre commande.</p>
@@ -414,7 +429,7 @@ function suiviPage(token){
       const at=STEPS.findIndex(s=>s[0]===c.statut), when=s=>{ const h=(c.historique||[]).filter(x=>x.statut===s).pop(); return h?new Date(h.created_at).toLocaleDateString("fr-FR",{day:"numeric",month:"long"}):""; };
       document.getElementById("suiviBody").innerHTML = (c.statut==="annulee" ? `<p class="lede">Cette commande a été annulée.</p>` :
         `<ol class="steps">${STEPS.map((s,i)=>`<li class="${i<=at?"done":""}${i===at?" now":""}"><b>${s[1]}</b><span>${when(s[0])}</span></li>`).join("")}</ol>`) +
-        `<dl class="facts"><div><dt>Œuvre</dt><dd>${esc(c.produit)}</dd></div><div><dt>Option</dt><dd>${esc(c.option)}</dd></div><div><dt>Total</dt><dd>${money(c.prix)}</dd></div><div><dt>Livraison</dt><dd>À domicile, ${esc(c.ville)}</dd></div>
+        `<dl class="facts"><div><dt>Œuvre</dt><dd>${esc(c.produit)}</dd></div><div><dt>Option</dt><dd>${esc(c.option)}</dd></div><div><dt>Total</dt><dd>${money(c.prix)}${+c.frais_livraison?` (dont livraison ${money(c.frais_livraison)})`:""}</dd></div><div><dt>Livraison</dt><dd>À domicile, ${esc(c.ville)}${c.pays&&c.pays!=="Israël"?`, ${esc(c.pays)}`:""}</dd></div>
         ${c.transporteur||c.suivi_numero?`<div><dt>Colis</dt><dd>${esc(c.transporteur)} ${esc(c.suivi_numero)}${c.suivi_url?` · <a href="${esc(c.suivi_url)}" target="_blank" rel="noopener">suivre le colis</a>`:""}</dd></div>`:""}</dl>
         ${(c.historique||[]).filter(h=>h.message).map(h=>`<p class="note-msg"><span class="eyebrow">${esc(h.label)}</span>${esc(h.message)}</p>`).join("")}`;
       document.getElementById("suiviNum").textContent=`Commande ${c.numero}`;
