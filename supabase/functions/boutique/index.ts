@@ -39,6 +39,16 @@ const STATUTS: Record<string, string> = {
 const ref = (n: number) => `AL-${n}`;
 const money = (n: number) => `${Number(n).toLocaleString("fr-FR")} ₪`;
 const clean = (v: unknown, max = 300) => String(v ?? "").trim().slice(0, max);
+// Zones de livraison : supplément payé par le client, en plus du prix (livraison en Israël incluse).
+const ZONES_DEFAUT = [
+  { code: "IL", nom: "Israël", encadre: 0, print: 0 },
+  { code: "FR", nom: "France", encadre: 150, print: 50 },
+  { code: "NA", nom: "États-Unis et Canada", encadre: 200, print: 70 },
+  { code: "WW", nom: "Reste du monde", encadre: 220, print: 80 },
+];
+const zonesDe = (r: any) => (Array.isArray(r?.zones) && r.zones.length ? r.zones : ZONES_DEFAUT);
+const adresseHtml = (c: any) =>
+  `${esc(c.adresse)}<br>${esc(c.code_postal)} ${esc(c.ville)}${c.pays && c.pays !== "Israël" ? `<br>${esc(c.pays)}` : ""}`;
 const esc = (s: unknown) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]!));
 
 // ---------- PayPal ----------
@@ -98,9 +108,11 @@ ${row("Commande", `<b>${ref(c.numero)}</b>`)}
 ${row("Date", new Date(c.paye_le ?? c.created_at).toLocaleDateString("fr-FR", { timeZone: "Asia/Jerusalem" }))}
 ${row("Œuvre", esc(c.produit_titre))}
 ${row("Option", `${OPTIONS[c.option]}${c.option_detail ? `<br><span style="color:#6b6b66">${esc(c.option_detail)}</span>` : ""}`)}
-${row("Livraison", "Incluse, à domicile")}
+${Number(c.frais_livraison) > 0
+    ? `${row("Prix du print", money(Number(c.prix) - Number(c.frais_livraison)))}${row(`Livraison (${esc(c.pays)})`, money(c.frais_livraison))}`
+    : row("Livraison", "Incluse, à domicile")}
 ${row("Total payé", `<b>${money(c.prix)}</b>`)}
-${row("Livré à", `${esc(c.client_nom)}<br>${esc(c.adresse)}<br>${esc(c.code_postal)} ${esc(c.ville)}${c.client_tel ? `<br>${esc(c.client_tel)}` : ""}`)}
+${row("Livré à", `${esc(c.client_nom)}<br>${adresseHtml(c)}${c.client_tel ? `<br>${esc(c.client_tel)}` : ""}`)}
 </table>${button(suiviUrl(c), "Suivre ma commande")}`;
   return layout(`Bon de commande ${ref(c.numero)}`, body);
 }
@@ -127,8 +139,8 @@ ${c.suivi_url ? row("Suivi du colis", `<a href="${esc(c.suivi_url)}">Suivre le c
 function mailAdmin(c: any) {
   const body = `<table style="width:100%;border-collapse:collapse">
 ${row("Commande", `<b>${ref(c.numero)}</b>`)}${row("Œuvre", esc(c.produit_titre))}${row("Option", OPTIONS[c.option])}
-${row("Montant", money(c.prix))}${row("Client", `${esc(c.client_nom)}<br>${esc(c.client_email)}<br>${esc(c.client_tel)}`)}
-${row("Adresse", `${esc(c.adresse)}<br>${esc(c.code_postal)} ${esc(c.ville)}`)}${c.note_client ? row("Note du client", esc(c.note_client)) : ""}</table>
+${row("Montant", `${money(c.prix)}${Number(c.frais_livraison) > 0 ? ` dont livraison ${money(c.frais_livraison)}` : ""}`)}${row("Client", `${esc(c.client_nom)}<br>${esc(c.client_email)}<br>${esc(c.client_tel)}`)}
+${row("Adresse", adresseHtml(c))}${c.note_client ? row("Note du client", esc(c.note_client)) : ""}</table>
 ${button(`${SITE_URL}/admin.html`, "Ouvrir la gestion")}`;
   return layout(`Nouvelle commande ${ref(c.numero)} · ${money(c.prix)}`, body);
 }
@@ -149,6 +161,7 @@ async function creer(b: any) {
   const client = {
     client_nom: clean(k.nom, 120), client_email: clean(k.email, 160).toLowerCase(), client_tel: clean(k.tel, 40),
     adresse: clean(k.adresse, 240), ville: clean(k.ville, 80), code_postal: clean(k.code_postal, 20), note_client: clean(k.note, 600),
+    pays: clean(k.pays, 80),
   };
   if (!option) throw new HttpError(400, "Option inconnue.");
   if (!client.client_nom || !client.adresse || !client.ville) throw new HttpError(400, "Merci de remplir le nom et l'adresse de livraison.");
@@ -158,17 +171,24 @@ async function creer(b: any) {
   const { data: p } = await db.from("produits").select("*").eq("id", clean(b.produit_id, 60)).maybeSingle();
   if (!p || p.statut !== "disponible") throw new HttpError(409, "Ce print n'est plus disponible.");
   if (p.edition > 0 && p.vendus >= p.edition) throw new HttpError(409, "Cette édition est épuisée.");
-  const prix = Number(option === "encadre" ? p.prix_encadre : p.prix_print);
-  if (!(prix > 0)) throw new HttpError(409, "Cette option n'est pas proposée.");
+  const base = Number(option === "encadre" ? p.prix_encadre : p.prix_print);
+  if (!(base > 0)) throw new HttpError(409, "Cette option n'est pas proposée.");
 
   const r = await reglages();
+  const zone = zonesDe(r).find((z: any) => z.code === clean(b.zone, 8)) ?? zonesDe(r)[0];
+  if (zone.code === "IL") client.pays = "Israël";
+  else if (!client.pays) client.pays = zone.code === "FR" ? "France" : "";
+  if (!client.pays) throw new HttpError(400, "Merci d'indiquer le pays de livraison.");
+  const frais_livraison = Math.max(0, Number(zone[option]) || 0);
+  const prix = base + frais_livraison;
   const { data: c, error } = await db.from("commandes").insert({
     ...client, produit_id: p.id, produit_titre: p.titre, option,
     option_detail: option === "encadre" ? r.format_encadre : r.format_print, prix,
     cout_impression: r.cout_impression ?? 0,
     cout_cadre: option === "encadre" ? (r.cout_cadre ?? 0) : 0,
     cout_emballage: option === "encadre" ? (r.cout_emballage_encadre ?? 0) : (r.cout_emballage_print ?? 0),
-    cout_livraison: r.cout_livraison ?? 0,
+    zone: zone.code, frais_livraison,
+    cout_livraison: Number(r.cout_livraison ?? 0) + frais_livraison,
     frais_paiement: Math.round((prix * (r.frais_pct ?? 0) / 100 + Number(r.frais_fixe ?? 0)) * 100) / 100,
   }).select().single();
   if (error || !c) throw new HttpError(500, "La commande n'a pas pu être enregistrée.");
@@ -231,6 +251,7 @@ async function suivi(b: any) {
   return {
     numero: ref(c.numero), statut: c.statut, statut_label: STATUTS[c.statut], date: c.paye_le ?? c.created_at,
     produit: c.produit_titre, option: OPTIONS[c.option], option_detail: c.option_detail, prix: c.prix,
+    frais_livraison: c.frais_livraison, pays: c.pays,
     client_nom: c.client_nom, ville: c.ville, transporteur: c.transporteur, suivi_numero: c.suivi_numero, suivi_url: c.suivi_url,
     historique: (h ?? []).map((x) => ({ ...x, label: STATUTS[x.statut] ?? x.statut })),
   };
