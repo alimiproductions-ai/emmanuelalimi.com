@@ -119,7 +119,7 @@ if os.path.exists("boutique.json"):
     print("boutique", len(prints), "prints")
 
 data = {"series": series, "galeries": {k: [w[:4] for w in v] for k, v in galeries.items()}, "site": site, "boutique": boutique}
-# Boutique en ligne (Supabase + PayPal) : boutique-config.json, vide tant que ce n'est pas configuré.
+# Boutique en ligne (Supabase + Grow) : boutique-config.json, vide tant que ce n'est pas configuré.
 shop = json.load(open("boutique-config.json", encoding="utf-8")) if os.path.exists("boutique-config.json") else None
 shop_js = json.dumps(shop) if shop else "null"
 

@@ -250,7 +250,7 @@ async function orderPanel(id) {
     <div class="box"><h3>Client</h3><dl class="kv"><dt>Nom</dt><dd>${esc(c.client_nom)}</dd><dt>E-mail</dt><dd><a href="mailto:${esc(c.client_email)}">${esc(c.client_email)}</a></dd><dt>Téléphone</dt><dd><a href="tel:${esc(c.client_tel)}">${esc(c.client_tel)}</a></dd>
       <dt>Adresse</dt><dd id="addr">${esc(c.adresse)}<br>${esc(c.code_postal)} ${esc(c.ville)}${c.pays&&c.pays!=="Israël"?`<br><b>${esc(c.pays)}</b>`:""}</dd>${c.note_client?`<dt>Note</dt><dd>${esc(c.note_client)}</dd>`:""}</dl>
       <div class="actions"><button id="cpy">Copier l'adresse</button></div></div>
-    <div class="box"><h3>Commande</h3><dl class="kv"><dt>Œuvre</dt><dd>${esc(c.produit_titre)}</dd><dt>Option</dt><dd>${OPT[c.option]}<br><span class="eyebrow" style="text-transform:none;letter-spacing:0">${esc(c.option_detail)}</span></dd><dt>Payé</dt><dd class="num">${money(c.prix)}</dd>${+c.frais_livraison?`<dt>Dont livraison</dt><dd class="num">${money(c.frais_livraison)} · ${esc(c.pays)}</dd>`:""}${c.paypal_capture_id?`<dt>PayPal</dt><dd class="num">${esc(c.paypal_capture_id)}</dd>`:""}${c.transporteur||c.suivi_numero?`<dt>Colis</dt><dd>${esc(c.transporteur)} ${esc(c.suivi_numero)}</dd>`:""}</dl></div>
+    <div class="box"><h3>Commande</h3><dl class="kv"><dt>Œuvre</dt><dd>${esc(c.produit_titre)}</dd><dt>Option</dt><dd>${OPT[c.option]}<br><span class="eyebrow" style="text-transform:none;letter-spacing:0">${esc(c.option_detail)}</span></dd><dt>Payé</dt><dd class="num">${money(c.prix)}</dd>${+c.frais_livraison?`<dt>Dont livraison</dt><dd class="num">${money(c.frais_livraison)} · ${esc(c.pays)}</dd>`:""}${c.grow_transaction_id?`<dt>Grow</dt><dd class="num">${esc(c.grow_transaction_id)}${c.moyen_paiement?` · ${esc(c.moyen_paiement)}`:""}</dd>`:c.paypal_capture_id?`<dt>PayPal</dt><dd class="num">${esc(c.paypal_capture_id)}</dd>`:""}${c.transporteur||c.suivi_numero?`<dt>Colis</dt><dd>${esc(c.transporteur)} ${esc(c.suivi_numero)}</dd>`:""}</dl></div>
    </div>
    ${c.statut!=="annulee"&&c.statut!=="livree" ? `<div class="box"><h3>${next?`Passer à « ${STATUTS[next]} »`:"Statut"}</h3>
      ${next==="expediee"||c.statut==="expediee" ? `<div class="grid2"><label class="f">Transporteur<input id="tr" list="trs" value="${esc(c.transporteur)}" placeholder="GetPackage, HFD…"></label><label class="f">Numéro de suivi<input id="sn" value="${esc(c.suivi_numero)}"></label></div><label class="f">Lien de suivi du colis<input id="su" type="url" value="${esc(c.suivi_url)}" placeholder="https://"></label><label class="f">Coût réel de la livraison (₪)<input id="cl" type="number" step="1" value="${c.cout_livraison}"></label><datalist id="trs"><option>GetPackage</option><option>HFD</option><option>Poste israélienne</option><option>Livraison en main propre</option></datalist>`:""}
@@ -259,7 +259,7 @@ async function orderPanel(id) {
      <div class="actions">${next?`<button class="primary" data-st="${next}">${STATUTS[next]}</button>`:""}${c.statut==="expediee"?`<button data-st="expediee">Mettre à jour le suivi</button>`:""}<button class="danger" data-st="annulee">Annuler la commande</button></div>
      <p class="msg" id="pm"></p></div>` : ""}
    <div class="box"><h3>Marge sur cette commande</h3><div class="costs">
-     ${[["cout_impression","Impression"],["cout_cadre","Cadre"],["cout_emballage","Emballage"],["cout_livraison","Livraison"],["frais_paiement","Frais PayPal"]].map(([k,l])=>`<label class="f">${l}<input type="number" step="0.01" data-cost="${k}" value="${c[k]}"></label>`).join("")}
+     ${[["cout_impression","Impression"],["cout_cadre","Cadre"],["cout_emballage","Emballage"],["cout_livraison","Livraison"],["frais_paiement","Frais de paiement"]].map(([k,l])=>`<label class="f">${l}<input type="number" step="0.01" data-cost="${k}" value="${c[k]}"></label>`).join("")}
    </div><p style="margin:0">Bénéfice : <b class="num">${money(marge)}</b> <span class="eyebrow">${c.prix?Math.round(marge/c.prix*100):0} %</span></p></div>
    <div class="box"><h3>Note interne</h3><textarea id="ni" rows="2">${esc(c.note_interne)}</textarea></div>
    <div class="box"><h3>Historique</h3><ul class="hist">${hist.map(h=>`<li><time>${dt(h.created_at)}</time><span>${STATUTS[h.statut]||h.statut}${h.email_envoye?" · e-mail envoyé":""}${h.message?` · « ${esc(h.message)} »`:""}</span></li>`).join("")||"<li>Aucun événement.</li>"}</ul>
@@ -273,7 +273,7 @@ async function orderPanel(id) {
   document.getElementById("ni").onchange = async e => { c.note_interne=e.target.value; must(await sb.from("commandes").update({note_interne:c.note_interne}).eq("id",c.id)); toast("Note enregistrée"); };
   document.querySelectorAll("[data-st]").forEach(b=>b.onclick=async()=>{
     const st=b.dataset.st, pm=document.getElementById("pm");
-    if (st==="annulee" && b.dataset.sure!=="1") { b.dataset.sure="1"; b.textContent="Confirmer l'annulation"; pm.textContent="Pense à rembourser le client dans PayPal."; return; }
+    if (st==="annulee" && b.dataset.sure!=="1") { b.dataset.sure="1"; b.textContent="Confirmer l'annulation"; pm.textContent="Pense à rembourser le client depuis ton espace Grow."; return; }
     const v=id=>document.getElementById(id)?.value;
     b.disabled=true; pm.textContent="";
     try {
@@ -329,7 +329,7 @@ function ventes() {
   <div class="kpi"><small>Bénéfice ce mois-ci</small><b>${money(ben(cur))}</b><small>${cur.ca?Math.round(ben(cur)/cur.ca*100):0} % des ventes</small></div>
   <div class="kpi"><small>Ventes depuis le début</small><b>${money(tot.ca)}</b><small>${tot.n} commandes</small></div>
   <div class="kpi"><small>Bénéfice depuis le début</small><b>${money(ben(tot))}</b><small>après impression, cadres, emballage, livraison et frais</small></div></div>
-  ${keys.length ? `<div class="tbl"><table><thead><tr><th>Mois</th><th class="r">Commandes</th><th class="r">Ventes</th><th class="r">Coûts</th><th class="r">Frais PayPal</th><th class="r">Bénéfice</th><th style="width:22%"></th></tr></thead>
+  ${keys.length ? `<div class="tbl"><table><thead><tr><th>Mois</th><th class="r">Commandes</th><th class="r">Ventes</th><th class="r">Coûts</th><th class="r">Frais de paiement</th><th class="r">Bénéfice</th><th style="width:22%"></th></tr></thead>
   <tbody>${keys.map(k=>{const m=months[k]; return `<tr><td>${label(k)}</td><td class="r">${m.n}</td><td class="r">${money(m.ca)}</td><td class="r">${money(m.couts)}</td><td class="r">${money(m.frais)}</td><td class="r"><b>${money(ben(m))}</b></td><td><div class="bar" style="width:${m.ca/max*100}%"></div></td></tr>`;}).join("")}</tbody>
   <tfoot><tr><td>Total</td><td class="r">${tot.n}</td><td class="r">${money(tot.ca)}</td><td class="r">${money(tot.couts)}</td><td class="r">${money(tot.frais)}</td><td class="r">${money(ben(tot))}</td><td></td></tr></tfoot></table></div>
   <h2 style="font-size:18px;text-transform:uppercase;margin:28px 0 10px">Par print</h2>
@@ -369,7 +369,7 @@ function produits() {
     <label style="display:flex;gap:8px;align-items:center;font-size:14px"><input type="checkbox" data-k="original"${p.original?" checked":""}> Original à vendre</label>
     <p class="eyebrow" style="margin:0">${p.vendus} vendu${p.vendus>1?"s":""}${p.edition?` sur ${p.edition}`:""}</p>
     <div class="actions"><button class="danger" data-del>Supprimer</button></div></div></div>`).join("")}</div>
-  <p class="eyebrow" style="margin-top:14px;text-transform:none;letter-spacing:0">Formats et délais affichés : onglet Réglages. Les prix encaissés sont ceux d'ici : plus besoin de modifier les liens PayPal.</p>`;
+  <p class="eyebrow" style="margin-top:14px;text-transform:none;letter-spacing:0">Formats et délais affichés : onglet Réglages. Les prix encaissés sont ceux d'ici : le paiement Grow utilise automatiquement ces prix.</p>`;
   document.getElementById("add").onclick = async()=>{ must(await sb.from("produits").insert({titre:"Nouveau print", statut:"masque", prix_encadre:S.reglages.prix_encadre||260, prix_print:120, ordre:S.produits.length+1})); S.produits=must(await sb.from("produits").select("*").order("ordre").order("created_at")); produits(); toast("Print ajouté (masqué tant que tu ne le rends pas disponible)"); };
   document.querySelectorAll(".prod").forEach(card=>{
     const p=S.produits.find(x=>x.id===card.dataset.id);
@@ -384,7 +384,7 @@ function produits() {
 
 /* ---------- réglages ---------- */
 function reglages() {
-  const r=S.reglages, F=[["cout_impression","Coût d'une impression A3 (₪)"],["cout_cadre","Coût d'un cadre (₪)"],["cout_emballage_encadre","Emballage d'un encadré (₪)"],["cout_emballage_print","Emballage d'un print seul (₪)"],["cout_livraison","Livraison estimée par commande (₪)"],["frais_pct","Frais PayPal (%)"],["frais_fixe","Frais PayPal fixes (₪)"]];
+  const r=S.reglages, F=[["cout_impression","Coût d'une impression A3 (₪)"],["cout_cadre","Coût d'un cadre (₪)"],["cout_emballage_encadre","Emballage d'un encadré (₪)"],["cout_emballage_print","Emballage d'un print seul (₪)"],["cout_livraison","Livraison estimée par commande (₪)"],["frais_pct","Frais Grow (%)"],["frais_fixe","Frais Grow fixes par paiement (₪)"]];
   main().innerHTML = `<div class="head"><div><p class="eyebrow">Coûts appliqués aux nouvelles commandes, textes du site</p><h1>Réglages</h1></div></div>
   <div class="box"><h3>Coûts par commande</h3><div class="grid2">${F.map(([k,l])=>`<label class="f">${l}<input type="number" step="0.01" data-k="${k}" value="${r[k]}"></label>`).join("")}</div></div>
   <div class="box" style="margin-top:12px"><h3>Livraison par zone</h3>

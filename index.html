@@ -293,8 +293,11 @@ const EVENTS = {
    Sans configuration : les prints viennent de boutique.json (liens PayPal ou commande par e-mail).
    Avec SHOP_CFG rempli : les prints viennent de Supabase, la commande et le paiement se font sur le site,
    et le client suit sa commande sur #suivi/<code>. */
-const SHOP_CFG = /*__SHOP__*/null || { url: "", anon: "", paypal: "" };
-const LIVE = !!(SHOP_CFG.url && SHOP_CFG.anon && SHOP_CFG.paypal);
+const SHOP_CFG = /*__SHOP__*/null || { url: "", anon: "", paiement: "" };
+const LIVE = !!(SHOP_CFG.url && SHOP_CFG.anon && SHOP_CFG.paiement);
+// Retour de la page de paiement Grow : ?commande=<code> → page de suivi.
+{ const m=location.search.match(/[?&]commande=([a-f0-9]{32})/); if(m) history.replaceState(null,"",location.pathname+"#suivi/"+m[1]);
+  else if(/[?&]annule=1/.test(location.search)) history.replaceState(null,"",location.pathname+"#boutique"); }
 let B = D.boutique || {prints:[]};
 let liveState = LIVE ? "loading" : "off";
 const SHOP = () => (B.prints||[]).filter(p=>p.statut!=="masque");
@@ -361,14 +364,6 @@ function wireShop(){
 }
 
 /* ---------- commande et paiement (mode en ligne) ---------- */
-let paypalSdk=null;
-function loadPaypal(){
-  if (paypalSdk) return paypalSdk;
-  paypalSdk = new Promise((ok,ko)=>{ const s=document.createElement("script");
-    s.src=`https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(SHOP_CFG.paypal)}&currency=ILS&intent=capture&components=buttons&locale=fr_FR`;
-    s.onload=()=>ok(window.paypal); s.onerror=()=>{ paypalSdk=null; ko(new Error("PayPal ne s'est pas chargé.")); }; document.head.appendChild(s); });
-  return paypalSdk;
-}
 function openCheckout(p,o){
   const dlg=document.getElementById("checkout");
   dlg.innerHTML=`<form class="co" id="coForm" novalidate>
@@ -386,7 +381,8 @@ function openCheckout(p,o){
     <div class="field"><label for="co-note">Note (facultatif)</label><textarea id="co-note" name="note" rows="2" style="min-height:64px" placeholder="Code d'entrée, disponibilités…"></textarea></div>
     <input type="text" name="site" tabindex="-1" autocomplete="off" style="display:none" aria-hidden="true">
     <p class="form-note" id="coDelai">Préparée à l'atelier sous ${esc(B.delai||"5 à 7 jours")}, puis livrée à domicile. Vous recevez un bon de commande par e-mail et un lien pour suivre votre commande.</p>
-    <div id="coPay" class="co-pay"><p class="form-note">Chargement du paiement…</p></div>
+    <div id="coPay" class="co-pay"><button class="btn" type="submit" id="coGo" style="width:100%">Payer <span id="coGoSum">${money(o.price)}</span></button>
+    <p class="form-note" style="text-align:center;margin-top:8px">Paiement sécurisé par Grow : carte bancaire, Bit, Apple Pay ou Google Pay.</p></div>
     <p class="ok" id="coMsg" role="status" hidden></p>
   </form>`;
   dlg.showModal();
@@ -399,33 +395,35 @@ function openCheckout(p,o){
   const syncZone=()=>{ const z=zone(), fee=+z[o.key]||0, il=z.code==="IL";
     document.getElementById("coShipL").textContent=il?"Livraison à domicile":`Livraison, ${z.nom}`;
     document.getElementById("coShip").textContent=fee?money(fee):"Incluse";
-    document.getElementById("coTot").textContent=money(o.price+fee);
+    document.getElementById("coTot").textContent=money(o.price+fee); document.getElementById("coGoSum").textContent=money(o.price+fee);
     paysF.hidden=il; pays.required=!il; if(!il && (!pays.value||pays.dataset.auto)){ pays.value=z.code==="FR"?"France":""; pays.dataset.auto=pays.value?"1":""; }
     document.getElementById("co-tel").previousElementSibling.textContent=il?"Téléphone":"Téléphone (avec indicatif)"; };
   pays.addEventListener("input",()=>{ pays.dataset.auto=""; });
   zSel.addEventListener("change",syncZone); syncZone();
-  loadPaypal().then(pp=>{
-    document.getElementById("coPay").innerHTML="";
-    pp.Buttons({
-      style:{layout:"vertical", shape:"pill", label:"pay", height:48},
-      onClick:(data,actions)=>{ say(""); if(!f.reportValidity()){ say("Merci de remplir vos coordonnées avant de payer."); return actions.reject(); } return actions.resolve(); },
-      createOrder:()=>api("creer",{produit_id:p.id, option:o.key, zone:zone().code, client:client(), site:new FormData(f).get("site")}).then(r=>r.paypal_id).catch(e=>{ say(e.message); throw e; }),
-      onApprove:d=>{ say("Paiement en cours de validation…"); return api("capturer",{paypal_id:d.orderID}).then(r=>{
-        dlg.innerHTML=`<div class="co"><div class="co-head"><div><p class="eyebrow">Commande ${esc(r.numero)}</p><h2>Merci<span class="heart">.</span></h2></div><button type="button" class="copy" id="coClose2">Fermer</button></div>
-        <p class="lede" style="margin:0">Votre paiement est bien reçu. Le bon de commande vient de partir à votre adresse e-mail, avec un lien pour suivre votre commande.</p>
-        <a class="btn" href="#suivi/${esc(r.token)}" id="coTrack">Suivre ma commande</a></div>`;
-        document.getElementById("coClose2").onclick=()=>dlg.close(); document.getElementById("coTrack").onclick=()=>dlg.close();
-      }).catch(e=>say(e.message)); },
-      onError:()=>say("Le paiement n'a pas abouti. Vous n'avez pas été débité. Réessayez ou écrivez-nous."),
-    }).render("#coPay");
-  }).catch(e=>{ document.getElementById("coPay").innerHTML=""; say(e.message+" Réessayez dans un instant."); });
+  f.onsubmit=e=>{ e.preventDefault(); say("");
+    if(!f.reportValidity()){ say("Merci de remplir vos coordonnées avant de payer."); return; }
+    const go=document.getElementById("coGo"); go.disabled=true; go.firstChild.textContent="Ouverture du paiement… ";
+    api("creer",{produit_id:p.id, option:o.key, zone:zone().code, client:client(), site:new FormData(f).get("site")})
+      .then(r=>{ location.href=r.url; })
+      .catch(e=>{ say(e.message); go.disabled=false; go.firstChild.textContent="Payer "; });
+  };
 }
 
 /* ---------- suivi de commande (client) ---------- */
 const STEPS=[["payee","Payée"],["en_preparation","En préparation"],["expediee","Expédiée"],["livree","Livrée"]];
 function suiviPage(token){
+  if (!document.getElementById("suiviBody")) suiviPage.n=0;
   setTimeout(()=>{
     api("suivi",{token}).then(c=>{
+      if (c.statut==="en_attente"){
+        const n=(suiviPage.n=(suiviPage.n||0)+1);
+        document.getElementById("suiviNum").textContent=`Commande ${c.numero}`;
+        document.getElementById("suiviBody").innerHTML = n<20
+          ? `<p class="lede">Merci ! Nous attendons la confirmation de votre paiement, cela prend quelques secondes…</p>`
+          : `<p class="lede">Le paiement n'est pas encore confirmé. Si vous avez été débité, vous recevrez le bon de commande par e-mail dans quelques minutes. Sinon, vous pouvez repasser commande depuis la boutique.</p>`;
+        if (n<20 && location.hash==="#suivi/"+token) setTimeout(()=>{ if(location.hash==="#suivi/"+token) suiviPage(token); },3000);
+        return;
+      }
       const at=STEPS.findIndex(s=>s[0]===c.statut), when=s=>{ const h=(c.historique||[]).filter(x=>x.statut===s).pop(); return h?new Date(h.created_at).toLocaleDateString("fr-FR",{day:"numeric",month:"long"}):""; };
       document.getElementById("suiviBody").innerHTML = (c.statut==="annulee" ? `<p class="lede">Cette commande a été annulée.</p>` :
         `<ol class="steps">${STEPS.map((s,i)=>`<li class="${i<=at?"done":""}${i===at?" now":""}"><b>${s[1]}</b><span>${when(s[0])}</span></li>`).join("")}</ol>`) +
