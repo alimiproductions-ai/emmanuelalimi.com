@@ -174,6 +174,74 @@ blockquote cite{display:block;margin-top:16px;font:400 13px var(--mono);font-sty
 .co-total{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-block:1px solid var(--ink);padding:12px 0}
 .co-total b{font:500 22px var(--mono);font-variant-numeric:tabular-nums}
 .co-pay{min-height:56px}
+/* boutique : typo chaleureuse, champs encadrés, page compacte */
+.shop,#checkout{--mono:var(--body)}
+.shop .eyebrow,#checkout .eyebrow{font:600 13px/1.2 var(--body);letter-spacing:.04em;text-transform:none}
+.shop .btn,#checkout .btn{font:700 16px/1 var(--body);letter-spacing:.01em;text-transform:none;padding:15px 24px}
+.shop-head{padding-block:clamp(24px,4vw,44px) clamp(16px,2vw,24px)}
+.shop-head h1{font-size:clamp(40px,6vw,76px);font-weight:800;letter-spacing:-.03em;line-height:.95;text-transform:uppercase;margin-top:6px}
+.shop-head .lede{margin:12px 0 0}
+.shop .trust{margin-bottom:14px}
+.how-mini{display:flex;flex-wrap:wrap;gap:8px 22px;margin:0 0 clamp(28px,4vw,44px);padding:0;list-style:none;font-size:15px;color:var(--muted)}
+.how-mini li{display:flex;align-items:center;gap:8px}
+.how-mini b{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--panel);color:var(--ink);font:700 13px var(--body)}
+.shop .print h3{font-size:clamp(22px,2.2vw,28px)}
+.shop .print .sub{font:500 13px var(--body);letter-spacing:.02em;text-transform:none}
+.shop .opt{border-radius:12px}
+.shop .opt b{font:700 17px var(--body)}
+.shop .tags li{font:600 13px var(--body);letter-spacing:0;text-transform:none}
+.shop section{padding-block:clamp(36px,5vw,64px)}
+.shop h2{font-size:clamp(24px,3vw,34px);font-weight:800;letter-spacing:-.01em;text-transform:uppercase;line-height:1}
+.shop-help{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(260px,1fr);gap:clamp(20px,4vw,56px);align-items:start}
+.shop-help h2{margin-bottom:16px}
+@media (max-width:820px){.shop-help{grid-template-columns:1fr}}
+.shop .ask{display:grid;gap:12px;justify-items:start;position:sticky;top:96px}
+.shop .ask p{margin:0}
+.shop .faq summary{font-size:17px;padding:16px 0}
+.shop .faq summary::after{font-family:var(--body)}
+.shop-orig{display:grid;gap:12px;justify-items:start;border-top:1px solid var(--line)}
+.shop-orig p{margin:0;color:var(--muted);max-width:62ch}
+#checkout{--wall:#ffffff;--panel:#f5f4f0;--ink:#1d1d1b;--muted:#6b6b66;--line:#e4e3de;--heart:#e0261c;--heart-ink:#fff;--field:#ffffff;color-scheme:light;width:min(920px,calc(100% - 24px));border-radius:20px;box-shadow:0 30px 80px -20px rgba(0,0,0,.45)}
+#checkout .co{gap:18px}
+.co-top{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid var(--line);margin:calc(-1*clamp(20px,4vw,32px)) calc(-1*clamp(20px,4vw,32px)) 0;padding:14px clamp(20px,4vw,32px)}
+.co-title{margin:0;display:flex;align-items:center;gap:8px;font:700 15px var(--body);color:#1f7a3f}
+.co-title .ico{width:18px;height:18px}
+.co-x{background:var(--panel);border:0;width:36px;height:36px;border-radius:50%;font-size:15px;cursor:pointer;color:var(--ink)}
+.co-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(20px,3vw,36px);align-items:start}
+@media (max-width:760px){.co-grid{grid-template-columns:1fr}}
+.co-recap{background:var(--panel);border-radius:16px;padding:18px;display:grid;gap:14px;position:sticky;top:0}
+.co-item{display:grid;grid-template-columns:72px 1fr;gap:14px;align-items:center}
+.co-item img{width:72px;height:90px;object-fit:contain;background:#fff;border-radius:8px}
+.co-name{margin:0;font:800 17px/1.15 var(--display);text-transform:uppercase}
+.co-opt{margin:4px 0 0;font-size:13px;line-height:1.35;color:var(--muted)}
+.co-promise{list-style:none;margin:0;padding:12px 0 0;border-top:1px solid var(--line);display:grid;gap:8px;font-size:14px;color:var(--muted)}
+.co-promise li{display:flex;gap:10px;align-items:flex-start}
+.co-promise .ico{width:18px;height:18px;color:var(--ink)}
+.co-form{display:grid;gap:18px;min-width:0}
+.co-form fieldset{border:0;margin:0;padding:0;display:grid;gap:12px;min-width:0}
+.co-form legend{font:800 16px var(--body);margin-bottom:10px;padding:0}
+.co-form .row2>*{min-width:0}
+#checkout .field{gap:5px;min-width:0}
+#checkout .field input,#checkout .field select,#checkout .field textarea{width:100%;min-width:0}
+.opt-l{font-weight:400;color:var(--muted)}
+.co-note summary{cursor:pointer;font-size:14px;color:var(--muted);text-decoration:underline;text-underline-offset:3px}
+.co-note[open] summary{margin-bottom:8px}
+.co-note textarea{min-height:70px}
+#checkout .co-secure{background:none;padding:0;gap:10px;justify-items:center;text-align:center}
+#checkout .co-secure p{font-size:13px}
+#checkout #coGo{background:#1d1d1b;color:#fff;font-size:17px}
+#checkout #coGo:hover{background:var(--heart)}
+#checkout .ok{font:600 14px var(--body)}
+@media (max-width:760px){.co-recap{position:static;padding:14px}.co-promise{display:none}.co-item{grid-template-columns:56px 1fr}.co-item img{width:56px;height:70px}#checkout{max-height:calc(100% - 16px);width:calc(100% - 16px)}}
+
+#checkout .field label{font:600 14px/1.3 var(--body);letter-spacing:0;text-transform:none;color:var(--ink)}
+#checkout .field input,#checkout .field textarea,#checkout .field select{border:1px solid color-mix(in srgb,var(--ink) 22%,transparent);border-radius:10px;padding:12px 14px;background:var(--field)}
+#checkout .field input:focus,#checkout .field textarea:focus,#checkout .field select:focus{border-color:var(--ink);outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--heart) 25%,transparent)}
+#checkout .field select{appearance:auto}
+#checkout .field input::placeholder,#checkout .field textarea::placeholder{color:var(--muted);opacity:.8}
+#checkout .co-total b,#checkout .co-lines dd{font-family:var(--body);font-weight:700}
+#checkout .co-total{border-color:var(--line)}
+#checkout .paym li{font:600 12px/1 var(--body);letter-spacing:0}
 /* confiance (boutique) */
 .ico{width:22px;height:22px;flex:none;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .trust{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:0 0 clamp(32px,5vw,56px);padding:0;list-style:none}
@@ -414,27 +482,37 @@ function wireShop(){
 function openCheckout(p,o){
   const dlg=document.getElementById("checkout");
   dlg.innerHTML=`<form class="co" id="coForm" novalidate>
-    <div class="co-head"><div><p class="eyebrow">Commande</p><h2>${esc(p.titre)}</h2><p class="sub">${esc(o.label)} · ${esc(o.detail||"")}</p></div><button type="button" class="copy" id="coClose">Fermer</button></div>
-    <ol class="co-steps" aria-label="Étapes"><li class="on">1 · Coordonnées</li><li>2 · Paiement</li><li>3 · Confirmation</li></ol>
-    <div class="field"><label for="co-zone">Livraison</label><select id="co-zone" name="zone">${ZONES().map(z=>`<option value="${esc(z.code)}">${esc(z.nom)}${+z[o.key]?` (+${money(z[o.key])})`:" (incluse)"}</option>`).join("")}</select></div>
-    <dl class="co-lines"><div><dt>${esc(o.label)}</dt><dd>${money(o.price)}</dd></div><div><dt id="coShipL">Livraison à domicile</dt><dd id="coShip">Incluse</dd></div></dl>
-    <div class="co-total"><span>Total</span><b id="coTot">${money(o.price)}</b></div>
-    <div class="row2"><div class="field"><label for="co-nom">Nom complet</label><input id="co-nom" name="nom" autocomplete="name" required></div>
-    <div class="field"><label for="co-tel">Téléphone</label><input id="co-tel" name="tel" type="tel" autocomplete="tel" required></div></div>
-    <div class="field"><label for="co-email">E-mail (pour le bon de commande et le suivi)</label><input id="co-email" name="email" type="email" autocomplete="email" required></div>
-    <div class="field"><label for="co-adresse">Adresse de livraison</label><input id="co-adresse" name="adresse" autocomplete="street-address" required placeholder="Rue, numéro, appartement, étage"></div>
-    <div class="row2"><div class="field"><label for="co-ville">Ville</label><input id="co-ville" name="ville" autocomplete="address-level2" required></div>
-    <div class="field"><label for="co-cp">Code postal</label><input id="co-cp" name="code_postal" autocomplete="postal-code"></div></div>
-    <div class="field" id="coPaysF" hidden><label for="co-pays">Pays</label><input id="co-pays" name="pays" autocomplete="country-name"></div>
-    <div class="field"><label for="co-note">Note (facultatif)</label><textarea id="co-note" name="note" rows="2" style="min-height:64px" placeholder="Code d'entrée, disponibilités…"></textarea></div>
-    <input type="text" name="site" tabindex="-1" autocomplete="off" style="display:none" aria-hidden="true">
-    <p class="form-note" id="coDelai">Préparée à l'atelier sous ${esc(B.delai||"5 à 7 jours")}, puis livrée à domicile. Vous recevez un bon de commande par e-mail et un lien pour suivre votre commande.</p>
-    <div class="co-secure">
-      <div class="l">${ICO.lock}<p><b>Paiement 100 % sécurisé par Grow</b>, prestataire de paiement israélien. Vous saisissez votre carte uniquement sur la page Grow, à l'enseigne « עמנואל אלימי ארט » : aucune donnée bancaire ne passe par ce site.</p></div>
-      ${PAYM}
-    </div>
-    <div id="coPay" class="co-pay"><button class="btn" type="submit" id="coGo" style="width:100%">Payer <span id="coGoSum">${money(o.price)}</span> ${ICO.lock}</button></div>
-    <p class="ok" id="coMsg" role="status" hidden></p>
+    <div class="co-top"><p class="co-title">${ICO.lock}Commande sécurisée</p><button type="button" class="co-x" id="coClose" aria-label="Fermer">✕</button></div>
+    <div class="co-grid">
+    <aside class="co-recap">
+      <div class="co-item"><img src="${esc(imgOf(p,800))}" alt=""><div><p class="co-name">${esc(p.titre)}</p><p class="co-opt">${esc(o.label)}${o.detail?`<br>${esc(o.detail)}`:""}</p></div></div>
+      <dl class="co-lines"><div><dt>${esc(o.label)}</dt><dd>${money(o.price)}</dd></div><div><dt id="coShipL">Livraison à domicile</dt><dd id="coShip">Incluse</dd></div></dl>
+      <div class="co-total"><span>Total</span><b id="coTot">${money(o.price)}</b></div>
+      <ul class="co-promise">
+        <li>${ICO.brush}<span>Préparé à la main à l'atelier sous ${esc(B.delai||"5 à 7 jours")}</span></li>
+        <li>${ICO.truck}<span>Livré à domicile, avec suivi en ligne</span></li>
+        <li>${ICO.track}<span>Bon de commande envoyé par e-mail</span></li>
+      </ul>
+    </aside>
+    <div class="co-form">
+      <fieldset><legend>Vos coordonnées</legend>
+        <div class="field"><label for="co-nom">Nom et prénom</label><input id="co-nom" name="nom" autocomplete="name" required></div>
+        <div class="row2"><div class="field"><label for="co-tel">Téléphone</label><input id="co-tel" name="tel" type="tel" autocomplete="tel" required></div>
+        <div class="field"><label for="co-email">E-mail</label><input id="co-email" name="email" type="email" autocomplete="email" required></div></div>
+      </fieldset>
+      <fieldset><legend>Livraison</legend>
+        <div class="field"><label for="co-zone">Pays de livraison</label><select id="co-zone" name="zone">${ZONES().map(z=>`<option value="${esc(z.code)}">${esc(z.nom)}${+z[o.key]?` (+${money(z[o.key])})`:" (livraison incluse)"}</option>`).join("")}</select></div>
+        <div class="field" id="coPaysF" hidden><label for="co-pays">Pays</label><input id="co-pays" name="pays" autocomplete="country-name"></div>
+        <div class="field"><label for="co-adresse">Adresse</label><input id="co-adresse" name="adresse" autocomplete="street-address" required placeholder="Rue, numéro, appartement"></div>
+        <div class="row2"><div class="field"><label for="co-ville">Ville</label><input id="co-ville" name="ville" autocomplete="address-level2" required></div>
+        <div class="field"><label for="co-cp">Code postal <span class="opt-l">(facultatif)</span></label><input id="co-cp" name="code_postal" autocomplete="postal-code"></div></div>
+        <details class="co-note"><summary>Ajouter une note pour la livraison</summary><div class="field"><label for="co-note" class="sr">Note</label><textarea id="co-note" name="note" rows="2" placeholder="Code d'entrée, étage, disponibilités…"></textarea></div></details>
+      </fieldset>
+      <input type="text" name="site" tabindex="-1" autocomplete="off" style="display:none" aria-hidden="true">
+      <div id="coPay" class="co-pay"><button class="btn" type="submit" id="coGo" style="width:100%">Payer <span id="coGoSum">${money(o.price)}</span> ${ICO.lock}</button></div>
+      <p class="ok" id="coMsg" role="status" hidden></p>
+      <div class="co-secure">${PAYM}<p>Vous serez redirigé vers la page de paiement sécurisée <b>Grow</b>, à l'enseigne « עמנואל אלימי ארט ». Vos données bancaires ne passent jamais par ce site.</p></div>
+    </div></div>
   </form>`;
   dlg.showModal();
   document.getElementById("coClose").onclick=()=>dlg.close();
@@ -551,25 +629,28 @@ const ROUTES = {
       ["Quand vais-je recevoir mon print ?", `Chaque print est préparé à l'atelier sous ${delai}, puis livré à votre domicile. Vous recevez un e-mail à chaque étape (en préparation, expédié) et vous pouvez suivre votre commande en ligne à tout moment.`],
       ["Livrez-vous hors d'Israël ?", intl ? `Oui : en France, aux États-Unis et au Canada, et dans le reste du monde. Le supplément de livraison s'affiche avant le paiement, vous connaissez le prix total avant de payer.` : `Pour un envoi hors d'Israël, écrivez-nous avant de commander.`],
       ["Le paiement est-il sécurisé ?", `Oui. Le paiement se fait sur la page sécurisée de Grow, prestataire de paiement israélien, à l'enseigne « עמנואל אלימי ארט ». Vos données bancaires ne passent jamais par ce site. Carte bancaire, Bit, Apple Pay et Google Pay sont acceptés.`],
-      ["Mon colis arrive abîmé, que faire ?", `Écrivez-nous dès réception, avec une photo du colis et du print. Nous vous proposons un remplacement ou un remboursement.`],
+      ["Mon colis arrive abîmé, que faire ?", `Écrivez-nous dès réception, avec une photo du colis et du print. Nous trouverons ensemble la meilleure solution.`],
       ["J'ai une question avant de commander.", `Écrivez-nous à ${EMAIL} ou sur Instagram @alimi_art. Réponse sous 48 h.`],
     ];
-    return head("Boutique", `${esc(B.titre||"Prints")}<span class="heart">.</span>`, B.intro||"")+
-    `<div class="wrap">${trust}
-      <div class="prints">${list.map(printCard).join("")}</div></div>
-    ${LIVE?`<section class="wrap"><div class="sec-head"><h2>Comment ça marche</h2><span class="eyebrow">4 étapes</span></div>
-      <ol class="how"><li><b>Choisissez</b><span>Le print et l'option : print seul ou encadré.</span></li>
-      <li><b>Payez en sécurité</b><span>Sur la page Grow : carte, Bit, Apple Pay ou Google Pay. Bon de commande par e-mail.</span></li>
-      <li><b>On prépare</b><span>Impression, signature et encadrement à l'atelier, sous ${esc(delai)}.</span></li>
-      <li><b>Vous recevez</b><span>Livraison à domicile, suivie en ligne jusqu'à votre porte.</span></li></ol></section>`:""}
+    if (!LIVE) return head("Boutique", `${esc(B.titre||"Prints")}<span class="heart">.</span>`, B.intro||"")+
+    `<div class="wrap">${trust}<div class="prints">${list.map(printCard).join("")}</div></div>
     <section class="wrap"><div class="sec-head"><h2>Œuvres originales</h2><span class="eyebrow">Sur demande</span></div>
       <div class="split" style="align-items:start"><p class="lede" style="margin:0">${esc(B.originaux||"")}</p>
       <div><a class="btn" href="#contact" data-subject="Acquisition d'une œuvre">Acquérir une œuvre</a></div></div></section>
-    ${LIVE?`<section class="wrap"><div class="sec-head"><h2>Questions fréquentes</h2></div>
-      <div class="faq">${faq.map(([q,a])=>`<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</div>
-      <div class="ask" style="margin-top:clamp(24px,4vw,40px)"><p><span class="eyebrow">Une question ?</span>Emmanuel vous répond personnellement, sous 48 h.</p>
-      <a class="btn ghost" href="#contact" data-subject="Commande boutique">Nous écrire</a></div></section>`
-    :(B.infos||[]).length?`<section class="wrap" style="padding-top:0"><div class="shop-info">${B.infos.map(x=>`<div><h3>${esc(x.titre)}</h3><p>${esc(x.texte)}</p></div>`).join("")}</div></section>`:""}`;
+    ${(B.infos||[]).length?`<section class="wrap" style="padding-top:0"><div class="shop-info">${B.infos.map(x=>`<div><h3>${esc(x.titre)}</h3><p>${esc(x.texte)}</p></div>`).join("")}</div></section>`:""}`;
+    return `<div class="shop">
+    <div class="wrap shop-head reveal"><p class="eyebrow">Boutique</p><h1>${esc(B.titre||"Prints")}<span class="heart">.</span></h1>
+      <p class="lede">${esc(B.intro||"")}</p></div>
+    <div class="wrap">${trust}
+      <ol class="how-mini" aria-label="Comment ça marche"><li><b>1</b>Vous choisissez votre print</li><li><b>2</b>Vous payez en sécurité sur Grow</li><li><b>3</b>On le prépare à l'atelier</li><li><b>4</b>Il est livré chez vous</li></ol>
+      <div class="prints">${list.map(printCard).join("")}</div></div>
+    <section class="wrap shop-help"><div class="faq-col"><h2>Questions fréquentes</h2>
+      <div class="faq">${faq.map(([q,a])=>`<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</div></div>
+      <aside class="ask"><p class="eyebrow">Une question ?</p><p>Emmanuel vous répond personnellement, sous 48 h.</p>
+      <a class="btn" href="#contact" data-subject="Commande boutique">Nous écrire</a>
+      <p class="form-note">${esc(EMAIL)}<br>Instagram @alimi_art</p></aside></section>
+    <section class="wrap shop-orig"><h2>Œuvres originales</h2><p>${esc(B.originaux||"")}</p>
+      <a class="btn ghost" href="#contact" data-subject="Acquisition d'une œuvre">Acquérir une œuvre</a></section></div>`;
   },
   alimi(){
     return head("Biographie","Qui est Alimi ?","")+`<div class="wrap"><div class="bio">

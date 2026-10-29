@@ -114,6 +114,13 @@ if os.path.exists("boutique.json"):
         except Exception as e:
             print("FAIL", path, e, file=sys.stderr)
             continue
+        # Version JPEG pour les e-mails (les messageries ne lisent pas toutes le WebP).
+        try:
+            im = ImageOps.exif_transpose(Image.open(path)).convert("RGB")
+            im.thumbnail((600, 1200))
+            im.save(f"{OUT}/{base}-600.jpg", "JPEG", quality=82, optimize=True, progressive=True)
+        except Exception as e:
+            print("FAIL jpg", path, e, file=sys.stderr)
         prints.append({**p, "image": base, "w": w, "h": h})
     boutique = {**b, "prints": prints}
     print("boutique", len(prints), "prints")
@@ -151,4 +158,8 @@ if fav:
         canvas.alpha_composite(c, ((size - c.width) // 2, (size - c.height) // 2))
         canvas.convert("RGB").save(f"{OUT}/{name}")
     Image.open(f"{OUT}/favicon-32.png").save(f"{OUT}/favicon.ico")
+    # Logo des e-mails : la signature, noire sur fond transparent.
+    m = im.copy()
+    m.thumbnail((240, 120), Image.LANCZOS)
+    m.save(f"{OUT}/img/mail-logo.png")
     print("favicon depuis", fav)
