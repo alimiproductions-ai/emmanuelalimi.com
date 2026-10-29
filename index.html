@@ -174,6 +174,43 @@ blockquote cite{display:block;margin-top:16px;font:400 13px var(--mono);font-sty
 .co-total{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-block:1px solid var(--ink);padding:12px 0}
 .co-total b{font:500 22px var(--mono);font-variant-numeric:tabular-nums}
 .co-pay{min-height:56px}
+/* confiance (boutique) */
+.ico{width:22px;height:22px;flex:none;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.trust{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:0 0 clamp(32px,5vw,56px);padding:0;list-style:none}
+.trust li{background:var(--wall);display:flex;gap:12px;align-items:flex-start;padding:16px 18px}
+.trust b{display:block;font:700 15px/1.25 var(--body)}
+.trust span{display:block;font-size:14px;line-height:1.4;color:var(--muted);margin-top:2px}
+.trust .ico{color:var(--heart);margin-top:1px}
+.reassure{display:flex;flex-wrap:wrap;gap:6px 14px;margin:2px 0 0;padding:0;list-style:none;font-size:13px;color:var(--muted)}
+.reassure li{display:flex;align-items:center;gap:6px}
+.reassure .ico{width:15px;height:15px;color:var(--ink)}
+.paym{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:0;padding:0;list-style:none}
+.paym li{font:500 11px/1 var(--mono);letter-spacing:.04em;border:1px solid var(--line);border-radius:6px;padding:6px 8px;color:var(--ink)}
+.how{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:clamp(16px,2vw,28px);margin:0;padding:0;list-style:none;counter-reset:how}
+.how li{counter-increment:how;border-top:1px solid var(--ink);padding-top:14px;display:grid;gap:6px}
+.how li::before{content:"0" counter(how);font:500 12px var(--mono);color:var(--heart);letter-spacing:.1em}
+.how b{font:700 20px/1.15 var(--display);text-transform:uppercase}
+.how span{color:var(--muted);font-size:15px}
+.faq{display:grid;border-top:1px solid var(--line)}
+.faq details{border-bottom:1px solid var(--line)}
+.faq summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:16px;padding:18px 0;font:700 clamp(17px,1.8vw,20px)/1.3 var(--body)}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font:400 22px/1 var(--mono);color:var(--muted)}
+.faq details[open] summary::after{content:"−"}
+.faq p{margin:0 0 18px;color:var(--muted);max-width:70ch}
+.ask{display:flex;flex-wrap:wrap;gap:16px 24px;align-items:center;justify-content:space-between;background:var(--panel);border-radius:16px;padding:clamp(18px,3vw,28px)}
+.ask p{margin:0;font-size:17px}
+.ask .eyebrow{display:block;margin-bottom:4px}
+.co-steps{display:flex;gap:8px;margin:0;padding:0;list-style:none;font:500 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.co-steps li{flex:1;border-top:3px solid var(--line);padding-top:8px}
+.co-steps li.on{border-color:var(--ink);color:var(--ink)}
+.co-secure{display:grid;gap:10px;background:var(--panel);border-radius:12px;padding:14px 16px}
+.co-secure p{margin:0;font-size:14px;line-height:1.45;color:var(--muted)}
+.co-secure p b{color:var(--ink)}
+.co-secure .l{display:flex;gap:10px;align-items:flex-start}
+.co-secure .ico{color:var(--ink);margin-top:1px}
+#coGo{justify-content:center;padding-block:18px}
+#coGo .ico{width:16px;height:16px;stroke:currentColor}
 .co-lines{margin:0;display:grid;gap:4px}.co-lines div{display:flex;justify-content:space-between;gap:12px;font-size:14px}.co-lines dt{color:var(--muted)}.co-lines dd{margin:0;font:400 14px var(--mono);font-variant-numeric:tabular-nums}
 .suivi{display:grid;gap:28px;max-width:760px;padding-bottom:40px}
 .steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
@@ -256,7 +293,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;
 <footer>
   <div class="wrap">
     <span>© <span id="yr"></span> Emmanuel Haï Alimi</span>
-    <span>emmanuelalimi.com</span>
+    <span><a href="#contact">Contact</a> · alimiproductions@gmail.com</span>
     <span><a href="https://www.instagram.com/alimi_art/" target="_blank" rel="noopener">Instagram</a> · <a href="https://www.facebook.com/alimiarts" target="_blank" rel="noopener">Facebook</a></span>
   </div>
 </footer>
@@ -318,6 +355,15 @@ function loadLive(){
   }).catch(()=>{ liveState="error"; });
 }
 const ZONES=()=>B.zones||[{code:"IL",nom:"Israël",encadre:0,print:0}];
+const svg = d => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+const ICO = {
+  lock: svg(`<rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/>`),
+  truck: svg(`<path d="M2.5 6.5h11v10h-11zM13.5 10h4l3 3.2v3.3h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/>`),
+  brush: svg(`<path d="M14.5 4.5l5 5-8 8-5-5z"/><path d="M6.5 12.5c-2 .5-3 2-3 4.5 0 1 .2 2 .5 2.5 2.5 0 5-1 5.5-4"/>`),
+  track: svg(`<circle cx="12" cy="12" r="8.5"/><path d="M8 12.5l2.7 2.7L16.5 9.5"/>`),
+  chat: svg(`<path d="M4 5.5h16v10H9l-5 4z"/>`),
+};
+const PAYM = `<ul class="paym" aria-label="Moyens de paiement acceptés"><li>Visa</li><li>Mastercard</li><li>Bit</li><li>Apple Pay</li><li>Google Pay</li></ul>`;
 function printOpts(p){
   const o=[];
   if (+p.prix_encadre) o.push({key:"encadre", label:"Encadré", detail:B.format_encadre, price:+p.prix_encadre, link:LIVE?"":(p.lien_encadre||"").trim()});
@@ -334,7 +380,8 @@ function printCard(p,i){
     <div><h3>${esc(p.titre)}</h3>${sub?`<p class="sub">${sub}</p>`:""}</div>
     ${p.texte?`<p class="txt">${esc(p.texte)}</p>`:""}
     ${out||!opts.length?`<p class="sub">Cette édition n'est plus disponible.</p>`:`<fieldset class="opts"><legend class="sr">Option pour ${esc(p.titre)}</legend>${opts.map((o,j)=>`<label class="opt"><span class="l"><input type="radio" name="opt-${i}" value="${j}"${j?"":" checked"}><span>${esc(o.label)}${o.detail?`<small>${esc(o.detail)}</small>`:""}</span></span><b>${money(o.price)}</b></label>`).join("")}</fieldset>
-    <div class="buy"><a class="btn" data-buy="${i}" href="#contact">${pre?"Précommander":"Commander"}</a><p class="form-note" data-note="${i}"></p></div>`}
+    <div class="buy"><a class="btn" data-buy="${i}" href="#contact">${pre?"Précommander":"Commander"}</a><p class="form-note" data-note="${i}"></p>
+      ${LIVE?`<ul class="reassure"><li>${ICO.lock}Paiement sécurisé</li><li>${ICO.truck}Livré chez vous</li><li>${ICO.brush}Préparé à l'atelier</li></ul>`:""}</div>`}
     ${p.original?`<a class="link-arrow" href="#contact" data-subject="Acquisition d'une œuvre" data-msg="Bonjour, je suis intéressé(e) par l'œuvre originale « ${esc(p.titre)} ».">Acquérir l'original →</a>`:""}
   </article>`;
 }
@@ -368,6 +415,7 @@ function openCheckout(p,o){
   const dlg=document.getElementById("checkout");
   dlg.innerHTML=`<form class="co" id="coForm" novalidate>
     <div class="co-head"><div><p class="eyebrow">Commande</p><h2>${esc(p.titre)}</h2><p class="sub">${esc(o.label)} · ${esc(o.detail||"")}</p></div><button type="button" class="copy" id="coClose">Fermer</button></div>
+    <ol class="co-steps" aria-label="Étapes"><li class="on">1 · Coordonnées</li><li>2 · Paiement</li><li>3 · Confirmation</li></ol>
     <div class="field"><label for="co-zone">Livraison</label><select id="co-zone" name="zone">${ZONES().map(z=>`<option value="${esc(z.code)}">${esc(z.nom)}${+z[o.key]?` (+${money(z[o.key])})`:" (incluse)"}</option>`).join("")}</select></div>
     <dl class="co-lines"><div><dt>${esc(o.label)}</dt><dd>${money(o.price)}</dd></div><div><dt id="coShipL">Livraison à domicile</dt><dd id="coShip">Incluse</dd></div></dl>
     <div class="co-total"><span>Total</span><b id="coTot">${money(o.price)}</b></div>
@@ -381,8 +429,11 @@ function openCheckout(p,o){
     <div class="field"><label for="co-note">Note (facultatif)</label><textarea id="co-note" name="note" rows="2" style="min-height:64px" placeholder="Code d'entrée, disponibilités…"></textarea></div>
     <input type="text" name="site" tabindex="-1" autocomplete="off" style="display:none" aria-hidden="true">
     <p class="form-note" id="coDelai">Préparée à l'atelier sous ${esc(B.delai||"5 à 7 jours")}, puis livrée à domicile. Vous recevez un bon de commande par e-mail et un lien pour suivre votre commande.</p>
-    <div id="coPay" class="co-pay"><button class="btn" type="submit" id="coGo" style="width:100%">Payer <span id="coGoSum">${money(o.price)}</span></button>
-    <p class="form-note" style="text-align:center;margin-top:8px">Paiement sécurisé par Grow : carte bancaire, Bit, Apple Pay ou Google Pay.</p></div>
+    <div class="co-secure">
+      <div class="l">${ICO.lock}<p><b>Paiement 100 % sécurisé par Grow</b>, prestataire de paiement israélien. Vous saisissez votre carte uniquement sur la page Grow, à l'enseigne « עמנואל אלימי ארט » : aucune donnée bancaire ne passe par ce site.</p></div>
+      ${PAYM}
+    </div>
+    <div id="coPay" class="co-pay"><button class="btn" type="submit" id="coGo" style="width:100%">Payer <span id="coGoSum">${money(o.price)}</span> ${ICO.lock}</button></div>
     <p class="ok" id="coMsg" role="status" hidden></p>
   </form>`;
   dlg.showModal();
@@ -489,13 +540,36 @@ const ROUTES = {
     if (!list.length) return `<div class="wrap soon reveal"><p class="eyebrow">Boutique</p><h1>Coming<br>soon<span class="heart">.</span></h1>
     <p class="lede">La boutique en ligne arrive bientôt. En attendant, pour une œuvre ou une commande personnalisée, écrivez-nous.</p>
     <a class="btn" href="#contact" data-subject="Boutique">Nous écrire</a></div>`;
+    const delai = B.delai||"5 à 7 jours", intl = ZONES().length>1;
+    const trust = LIVE ? `<ul class="trust">
+        <li>${ICO.lock}<div><b>Paiement sécurisé</b><span>Carte, Bit, Apple Pay ou Google Pay, via Grow.</span></div></li>
+        <li>${ICO.truck}<div><b>Livraison incluse en Israël</b><span>À domicile.${intl?" Envoi à l'étranger possible.":""}</span></div></li>
+        <li>${ICO.brush}<div><b>Préparé à la main</b><span>Imprimé et encadré à l'atelier sous ${esc(delai)}.</span></div></li>
+        <li>${ICO.track}<div><b>Suivi de commande</b><span>Bon de commande par e-mail et suivi en ligne.</span></div></li>
+      </ul>` : (B.points||[]).length?`<ul class="tags shop-tags">${B.points.map(t=>`<li>${esc(t)}</li>`).join("")}</ul>`:"";
+    const faq = [
+      ["Quand vais-je recevoir mon print ?", `Chaque print est préparé à l'atelier sous ${delai}, puis livré à votre domicile. Vous recevez un e-mail à chaque étape (en préparation, expédié) et vous pouvez suivre votre commande en ligne à tout moment.`],
+      ["Livrez-vous hors d'Israël ?", intl ? `Oui : en France, aux États-Unis et au Canada, et dans le reste du monde. Le supplément de livraison s'affiche avant le paiement, vous connaissez le prix total avant de payer.` : `Pour un envoi hors d'Israël, écrivez-nous avant de commander.`],
+      ["Le paiement est-il sécurisé ?", `Oui. Le paiement se fait sur la page sécurisée de Grow, prestataire de paiement israélien, à l'enseigne « עמנואל אלימי ארט ». Vos données bancaires ne passent jamais par ce site. Carte bancaire, Bit, Apple Pay et Google Pay sont acceptés.`],
+      ["Mon colis arrive abîmé, que faire ?", `Écrivez-nous dès réception, avec une photo du colis et du print. Nous vous proposons un remplacement ou un remboursement.`],
+      ["J'ai une question avant de commander.", `Écrivez-nous à ${EMAIL} ou sur Instagram @alimi_art. Réponse sous 48 h.`],
+    ];
     return head("Boutique", `${esc(B.titre||"Prints")}<span class="heart">.</span>`, B.intro||"")+
-    `<div class="wrap">${(B.points||[]).length?`<ul class="tags shop-tags">${B.points.map(t=>`<li>${esc(t)}</li>`).join("")}</ul>`:""}
+    `<div class="wrap">${trust}
       <div class="prints">${list.map(printCard).join("")}</div></div>
+    ${LIVE?`<section class="wrap"><div class="sec-head"><h2>Comment ça marche</h2><span class="eyebrow">4 étapes</span></div>
+      <ol class="how"><li><b>Choisissez</b><span>Le print et l'option : print seul ou encadré.</span></li>
+      <li><b>Payez en sécurité</b><span>Sur la page Grow : carte, Bit, Apple Pay ou Google Pay. Bon de commande par e-mail.</span></li>
+      <li><b>On prépare</b><span>Impression, signature et encadrement à l'atelier, sous ${esc(delai)}.</span></li>
+      <li><b>Vous recevez</b><span>Livraison à domicile, suivie en ligne jusqu'à votre porte.</span></li></ol></section>`:""}
     <section class="wrap"><div class="sec-head"><h2>Œuvres originales</h2><span class="eyebrow">Sur demande</span></div>
       <div class="split" style="align-items:start"><p class="lede" style="margin:0">${esc(B.originaux||"")}</p>
       <div><a class="btn" href="#contact" data-subject="Acquisition d'une œuvre">Acquérir une œuvre</a></div></div></section>
-    ${(B.infos||[]).length?`<section class="wrap" style="padding-top:0"><div class="shop-info">${B.infos.map(x=>`<div><h3>${esc(x.titre)}</h3><p>${esc(x.texte)}</p></div>`).join("")}</div></section>`:""}`;
+    ${LIVE?`<section class="wrap"><div class="sec-head"><h2>Questions fréquentes</h2></div>
+      <div class="faq">${faq.map(([q,a])=>`<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</div>
+      <div class="ask" style="margin-top:clamp(24px,4vw,40px)"><p><span class="eyebrow">Une question ?</span>Emmanuel vous répond personnellement, sous 48 h.</p>
+      <a class="btn ghost" href="#contact" data-subject="Commande boutique">Nous écrire</a></div></section>`
+    :(B.infos||[]).length?`<section class="wrap" style="padding-top:0"><div class="shop-info">${B.infos.map(x=>`<div><h3>${esc(x.titre)}</h3><p>${esc(x.texte)}</p></div>`).join("")}</div></section>`:""}`;
   },
   alimi(){
     return head("Biographie","Qui est Alimi ?","")+`<div class="wrap"><div class="bio">
