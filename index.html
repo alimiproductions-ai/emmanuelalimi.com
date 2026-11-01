@@ -8,8 +8,17 @@
 <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="description" content="Galerie en ligne d'Emmanuel Alimi : Respire Collection, portraits, spiritualité, pop-art, Breslev. Œuvres originales, commandes personnalisées, live painting et caricature.">
-<meta property="og:title" content="Emmanuel Alimi">
-<meta property="og:description" content="Offrez-vous de l'art. Œuvres originales et commandes personnalisées.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Emmanuel Alimi">
+<meta property="og:url" content="https://www.emmanuelalimi.com/">
+<meta property="og:title" content="Emmanuel Alimi · Art prints">
+<meta property="og:description" content="Signed art prints, framed by hand and delivered to your door · Prints d'art signés, encadrés à la main et livrés chez vous.">
+<meta property="og:image" content="https://www.emmanuelalimi.com/og-image.jpg?v=2">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Trois prints encadrés d'Emmanuel Alimi">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://www.emmanuelalimi.com/og-image.jpg?v=2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=Karla:ital,wght@0,400;0,500;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -51,6 +60,8 @@ a{color:inherit}
 .nav a{font:500 13px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;text-decoration:none;padding:10px 12px;border-radius:999px;color:var(--muted)}
 .nav a:hover{color:var(--ink)}
 .nav a[aria-current="page"]{color:var(--ink);background:var(--panel)}
+.lang-btn{background:none;border:1px solid var(--line);color:var(--ink);font:600 13px var(--body);padding:9px 13px;border-radius:999px;cursor:pointer;margin-left:8px}
+.lang-btn:hover{border-color:var(--ink)}
 .menu-btn{display:none;margin-left:auto;background:none;border:1px solid var(--line);color:var(--ink);font:500 13px var(--mono);padding:10px 14px;border-radius:999px;text-transform:uppercase;letter-spacing:.06em;cursor:pointer}
 @media (max-width:860px){
   .menu-btn{display:block}
@@ -353,6 +364,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;
       <a href="#alimi">Qui est Alimi</a>
       <a href="#contact">Contact</a>
     </nav>
+    <button class="lang-btn" id="langBtn" type="button" lang="en">EN</button>
   </div>
 </header>
 
@@ -382,17 +394,59 @@ const EMAIL = "alimiproductions@gmail.com";
 /* Clé Web3Forms (publique, prévue pour être dans la page) : les messages du formulaire arrivent sur alimiproductions@gmail.com */
 const FORM_KEY = "f9f37b1d-99a7-4094-95ad-4af1eb9db5d0";
 const D = DATA || {series:[],galeries:{},site:{}};
+/* ---------- langue (FR / EN) ----------
+   ?lang=en ou ?lang=fr dans le lien, sinon le dernier choix, sinon la langue du téléphone. */
+let LANG = (()=>{ const q=(location.search.match(/[?&]lang=(en|fr)\b/)||[])[1];
+  if (q){ try{ localStorage.setItem("lang",q); }catch(e){} return q; }
+  try{ const v=localStorage.getItem("lang"); if(v==="en"||v==="fr") return v; }catch(e){}
+  return /^fr/i.test(navigator.language||"") ? "fr" : "en"; })();
+const t = (fr,en) => LANG==="en" ? en : fr;
+/* Textes venant des fichiers ou de la base (en français) : leur version anglaise. */
+const EN_DATA = {
+  "Tirages d'art imprimés et encadrés à l'atelier, à la commande. Livraison incluse partout en Israël.": "Art prints, printed and framed by hand in my studio, made to order. Free delivery anywhere in Israel.",
+  "Les toiles originales ne sont pas vendues en ligne. Pour acquérir une œuvre d'une collection ou en commander une, écrivez-nous : réponse sous 48 h avec le prix et les détails.": "Original paintings are not sold online. To acquire a work from a collection or commission one, write to us: we reply within 48 hours with the price and details.",
+  "A3 sous passe-partout, cadre noir 40×50 cm": "A3 with mat, black frame 40×50 cm (16×20 in)",
+  "Impression A3 (29,7×42 cm), sans cadre": "A3 print (29.7×42 cm, 11.7×16.5 in), unframed",
+  "5 à 7 jours": "5 to 7 days",
+  "Israël": "Israel", "États-Unis et Canada": "USA & Canada", "Reste du monde": "Rest of the world",
+  "Encadré": "Framed", "Print seul": "Print only",
+  "Payée": "Paid", "En préparation": "In preparation", "Expédiée": "Shipped", "Livrée": "Delivered", "Annulée": "Cancelled",
+  "10 Tevet, un jeûne pour la délivrance.": "10 Tevet, a fast for redemption.",
+  "Soukkot 2026, un hommage au Rav Israël.": "Sukkot 2026, a tribute to Rav Israel.",
+  "L'arbre des Sefirot.": "The tree of the Sefirot.",
+  "Mordekhaï sortit de chez le roi en habit royal.": "Mordechai went out from the king in royal apparel.",
+  "Le bonheur, sans raison.": "Happiness, for no reason at all.",
+  "Chanter, taper des mains, sauter, danser : tout fait partie de la prière.": "Singing, clapping, jumping, dancing: it's all part of prayer.",
+  "Droite, gauche, droite, gauche : pour avancer, un poisson doit onduler.": "Right, left, right, left: to move forward, a fish has to sway.",
+  "Impression A3": "A3 print", "Cadre noir 40×50 avec passe-partout": "Black 40×50 frame with mat",
+  "Livraison incluse en Israël": "Free delivery in Israel", "Préparé en 5 à 7 jours": "Ready in 5 to 7 days",
+  "Livraison": "Delivery", "Paiement": "Payment", "Fabrication": "Craft",
+  "Livrée à domicile, incluse partout en Israël. Envoi en France, en Amérique du Nord et dans le monde avec supplément.": "Delivered to your door, free anywhere in Israel. Shipping to France, North America and worldwide for a fee.",
+  "Paiement sécurisé par Grow : carte bancaire, Bit, Apple Pay ou Google Pay.": "Secure payment by Grow: credit card, Bit, Apple Pay or Google Pay.",
+  "Chaque print est imprimé et encadré à l'atelier, à la commande.": "Each print is printed and framed in the studio, made to order.",
+  "Spiritualité": "Spirituality",
+  "La collection Respire : des personnages au trait noir sur fond blanc, une seule couleur pour le cœur. Fishlove, KissLev, Deng, Fly, The LoveSpreader.": "The Respire collection: characters drawn in black line on white, with a single color for the heart. Fishlove, KissLev, Deng, Fly, The LoveSpreader.",
+  "Portraits sur commande et figures qui comptent : rabbins, sages, proches. Chaque visage est travaillé à la main, du croquis à l'encadrement.": "Commissioned portraits and figures who matter: rabbis, sages, loved ones. Every face is worked by hand, from sketch to frame.",
+  "Lettres, lumière et prière : des toiles qui cherchent ce qu'il y a derrière l'image.": "Letters, light and prayer: canvases looking for what lies behind the image.",
+  "Couleurs franches, icônes détournées, humour : le versant pop du travail d'Alimi.": "Bold colors, twisted icons and humor: the pop side of Alimi's work.",
+  "Autour de Rabbi Nahman de Breslev et de ceux qui le suivent : visages, phrases et joie.": "Around Rebbe Nachman of Breslov and those who follow him: faces, sayings and joy.",
+};
+const td = v => (LANG==="en" && v && EN_DATA[String(v).trim()]) || v;
 function src(base, w){ return base ? `${base}-${w>900?1600:800}.webp` : ""; }
 const S = D.site;
 const LOGO = S.logo;
-const COLLECTIONS = D.series.map(s=>({slug:s.dossier, code:s.code, name:s.nom, intro:s.intro, cover:s.couverture, banners:s.bannieres, works:s.works}));
+let COLLECTIONS = [];
+const buildColl = () => { COLLECTIONS = D.series.map(s=>({slug:s.dossier, code:s.code, name:td(s.nom), intro:td(s.intro), cover:s.couverture, banners:s.bannieres, works:s.works})); };
+buildColl();
 const GRAPHIC = D.galeries["graphic-design"] || [];
 const ATELIER = D.galeries["atelier"] || [];
-const EVENTS = {
-  caricature:{name:"Caricature live",img:S["caricature-live"],text:"Alimi croque vos invités en direct, en quelques minutes chacun. Chacun repart avec son portrait.",tags:["Bar / Bat Mitsva","Anniversaire","Mariage"]},
-  painting:{name:"Live painting",img:S["live-painting"],text:"Votre mariage mérite le meilleur. Une toile peinte sur place pendant la soirée, que vous gardez comme mémoire de la journée.",tags:["Mariage","Soirée privée","Entreprise"],
+let EVENTS = {};
+const buildEvents = () => { EVENTS = {
+  caricature:{name:t("Caricature live","Live caricature"),img:S["caricature-live"],text:t("Alimi croque vos invités en direct, en quelques minutes chacun. Chacun repart avec son portrait.","Alimi sketches your guests live, a few minutes each. Everyone goes home with their portrait."),tags:t(["Bar / Bat Mitsva","Anniversaire","Mariage"],["Bar / Bat Mitzvah","Birthday","Wedding"])},
+  painting:{name:"Live painting",img:S["live-painting"],text:t("Votre mariage mérite le meilleur. Une toile peinte sur place pendant la soirée, que vous gardez comme mémoire de la journée.","Your wedding deserves the best. A canvas painted on site during the evening, that you keep as a memory of the day."),tags:t(["Mariage","Soirée privée","Entreprise"],["Wedding","Private party","Corporate"]),
     gallery:D.galeries["live-painting"] || []}
-};
+}; };
+buildEvents();
 
 /* ---------- boutique ----------
    Sans configuration : les prints viennent de boutique.json (liens PayPal ou commande par e-mail).
@@ -406,11 +460,11 @@ const LIVE = !!(SHOP_CFG.url && SHOP_CFG.anon && SHOP_CFG.paiement);
 let B = D.boutique || {prints:[]};
 let liveState = LIVE ? "loading" : "off";
 const SHOP = () => (B.prints||[]).filter(p=>p.statut!=="masque");
-const money = n => `${Number(n).toLocaleString("fr-FR")} ₪`;
+const money = n => LANG==="en" ? `₪${Number(n).toLocaleString("en-US")}` : `${Number(n).toLocaleString("fr-FR")} ₪`;
 const imgOf = (p,w) => p.image_url || src(p.image,w);
 function api(action, body){
-  return fetch(`${SHOP_CFG.url}/functions/v1/boutique`, {method:"POST", headers:{"Content-Type":"application/json", apikey:SHOP_CFG.anon, Authorization:`Bearer ${SHOP_CFG.anon}`}, body:JSON.stringify({action, ...body})})
-    .then(async r=>{ const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||"Le service ne répond pas."); return j; });
+  return fetch(`${SHOP_CFG.url}/functions/v1/boutique`, {method:"POST", headers:{"Content-Type":"application/json", apikey:SHOP_CFG.anon, Authorization:`Bearer ${SHOP_CFG.anon}`}, body:JSON.stringify({action, lang:LANG, ...body})})
+    .then(async r=>{ const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||t("Le service ne répond pas.","The service is not responding.")); return j; });
 }
 function loadLive(){
   const h={apikey:SHOP_CFG.anon, Authorization:`Bearer ${SHOP_CFG.anon}`};
@@ -431,26 +485,26 @@ const ICO = {
   track: svg(`<circle cx="12" cy="12" r="8.5"/><path d="M8 12.5l2.7 2.7L16.5 9.5"/>`),
   chat: svg(`<path d="M4 5.5h16v10H9l-5 4z"/>`),
 };
-const PAYM = `<ul class="paym" aria-label="Moyens de paiement acceptés"><li>Visa</li><li>Mastercard</li><li>Bit</li><li>Apple Pay</li><li>Google Pay</li></ul>`;
+const PAYM = `<ul class="paym"><li>Visa</li><li>Mastercard</li><li>Bit</li><li>Apple Pay</li><li>Google Pay</li></ul>`;
 function printOpts(p){
   const o=[];
-  if (+p.prix_encadre) o.push({key:"encadre", label:"Encadré", detail:B.format_encadre, price:+p.prix_encadre, link:LIVE?"":(p.lien_encadre||"").trim()});
-  if (+p.prix_print) o.push({key:"print", label:"Print seul", detail:B.format_print, price:+p.prix_print, link:LIVE?"":(p.lien_print||"").trim()});
+  if (+p.prix_encadre) o.push({key:"encadre", label:t("Encadré","Framed"), detail:td(B.format_encadre), price:+p.prix_encadre, link:LIVE?"":(p.lien_encadre||"").trim()});
+  if (+p.prix_print) o.push({key:"print", label:t("Print seul","Print only"), detail:td(B.format_print), price:+p.prix_print, link:LIVE?"":(p.lien_print||"").trim()});
   return o;
 }
 function printCard(p,i){
   const sold = +p.edition>0 && +p.vendus>=+p.edition;
   const out=p.statut==="epuise"||sold, pre=p.statut==="precommande", opts=printOpts(p);
-  const sub=[p.annee, +p.edition?`Édition limitée de ${p.edition} ex.`:""].filter(Boolean).map(esc).join(" · ");
+  const sub=[p.annee, +p.edition?t(`Édition limitée de ${p.edition} ex.`,`Limited edition of ${p.edition}`):""].filter(Boolean).map(esc).join(" · ");
   const dims = p.w&&p.h ? ` width="${p.w}" height="${p.h}"` : "";
   return `<article class="print reveal">
-    <button class="frame" type="button" data-zoom="${i}" aria-label="Voir ${esc(p.titre)} en grand"><img loading="lazy" src="${esc(imgOf(p,800))}"${dims} alt="${esc(p.titre)}">${out?`<span class="badge out">Épuisé</span>`:pre?`<span class="badge">Précommande</span>`:""}</button>
+    <button class="frame" type="button" data-zoom="${i}" aria-label="${esc(p.titre)}"><img loading="lazy" src="${esc(imgOf(p,800))}"${dims} alt="${esc(p.titre)}">${out?`<span class="badge out">${t("Épuisé","Sold out")}</span>`:pre?`<span class="badge">${t("Précommande","Pre-order")}</span>`:""}</button>
     <div><h3>${esc(p.titre)}</h3>${sub?`<p class="sub">${sub}</p>`:""}</div>
-    ${p.texte?`<p class="txt">${esc(p.texte)}</p>`:""}
-    ${out||!opts.length?`<p class="sub">Cette édition n'est plus disponible.</p>`:`<fieldset class="opts"><legend class="sr">Option pour ${esc(p.titre)}</legend>${opts.map((o,j)=>`<label class="opt"><span class="l"><input type="radio" name="opt-${i}" value="${j}"${j?"":" checked"}><span>${esc(o.label)}${o.detail?`<small>${esc(o.detail)}</small>`:""}</span></span><b>${money(o.price)}</b></label>`).join("")}</fieldset>
-    <div class="buy"><a class="btn" data-buy="${i}" href="#contact">${pre?"Précommander":"Commander"}</a><p class="form-note" data-note="${i}"></p>
-      ${LIVE?`<ul class="reassure"><li>${ICO.lock}Paiement sécurisé</li><li>${ICO.truck}Livré chez vous</li><li>${ICO.brush}Préparé à l'atelier</li></ul>`:""}</div>`}
-    ${p.original?`<a class="link-arrow" href="#contact" data-subject="Acquisition d'une œuvre" data-msg="Bonjour, je suis intéressé(e) par l'œuvre originale « ${esc(p.titre)} ».">Acquérir l'original →</a>`:""}
+    ${p.texte?`<p class="txt">${esc(td(p.texte))}</p>`:""}
+    ${out||!opts.length?`<p class="sub">${t("Cette édition n'est plus disponible.","This edition is no longer available.")}</p>`:`<fieldset class="opts"><legend class="sr">${esc(p.titre)}</legend>${opts.map((o,j)=>`<label class="opt"><span class="l"><input type="radio" name="opt-${i}" value="${j}"${j?"":" checked"}><span>${esc(o.label)}${o.detail?`<small>${esc(o.detail)}</small>`:""}</span></span><b>${money(o.price)}</b></label>`).join("")}</fieldset>
+    <div class="buy"><a class="btn" data-buy="${i}" href="#contact">${pre?t("Précommander","Pre-order"):t("Commander","Order")}</a><p class="form-note" data-note="${i}"></p>
+      ${LIVE?`<ul class="reassure"><li>${ICO.lock}${t("Paiement sécurisé","Secure payment")}</li><li>${ICO.truck}${t("Livré chez vous","Delivered to you")}</li><li>${ICO.brush}${t("Préparé à l'atelier","Made in the studio")}</li></ul>`:""}</div>`}
+    ${p.original?`<a class="link-arrow" href="#contact" data-subject="Acquisition d'une œuvre" data-msg="${t(`Bonjour, je suis intéressé(e) par l'œuvre originale « ${esc(p.titre)} ».`,`Hello, I am interested in the original work “${esc(p.titre)}”.`)}">${t("Acquérir l'original →","Acquire the original →")}</a>`:""}
   </article>`;
 }
 function wireShop(){
@@ -462,9 +516,9 @@ function wireShop(){
     const pick=()=>opts[+(document.querySelector(`input[name="opt-${i}"]:checked`)||{value:0}).value];
     const sync=()=>{
       const o=pick();
-      if (LIVE && liveState==="ready"){ a.href="#boutique"; a.removeAttribute("target"); note.textContent=`${money(o.price)}, livraison à domicile incluse en Israël.${ZONES().length>1?" Envoi possible à l'étranger (supplément calculé à la commande).":""}`; }
-      else if (o.link){ a.href=o.link; a.target="_blank"; a.rel="noopener"; note.textContent=`${money(o.price)}, livraison incluse. Paiement sécurisé par carte, Apple Pay ou PayPal.`; }
-      else { a.href="#contact"; a.removeAttribute("target"); note.textContent=`${money(o.price)}, livraison incluse. Vous recevez la confirmation et le lien de paiement par e-mail.`; }
+      if (LIVE && liveState==="ready"){ a.href="#boutique"; a.removeAttribute("target"); note.textContent=t(`${money(o.price)}, livraison à domicile incluse en Israël.${ZONES().length>1?" Envoi possible à l'étranger (supplément calculé à la commande).":""}`,`${money(o.price)}, free home delivery in Israel.${ZONES().length>1?" International shipping available (fee shown at checkout).":""}`); }
+      else if (o.link){ a.href=o.link; a.target="_blank"; a.rel="noopener"; note.textContent=t(`${money(o.price)}, livraison incluse.`,`${money(o.price)}, delivery included.`); }
+      else { a.href="#contact"; a.removeAttribute("target"); note.textContent=t(`${money(o.price)}, livraison incluse. Vous recevez la confirmation et le lien de paiement par e-mail.`,`${money(o.price)}, delivery included. You will receive the confirmation and payment link by e-mail.`); }
     };
     document.querySelectorAll(`input[name="opt-${i}"]`).forEach(r=>r.addEventListener("change",sync));
     a.addEventListener("click",e=>{
@@ -482,36 +536,36 @@ function wireShop(){
 function openCheckout(p,o){
   const dlg=document.getElementById("checkout");
   dlg.innerHTML=`<form class="co" id="coForm" novalidate>
-    <div class="co-top"><p class="co-title">${ICO.lock}Commande sécurisée</p><button type="button" class="co-x" id="coClose" aria-label="Fermer">✕</button></div>
+    <div class="co-top"><p class="co-title">${ICO.lock}${t("Commande sécurisée","Secure checkout")}</p><button type="button" class="co-x" id="coClose" aria-label="${t("Fermer","Close")}">✕</button></div>
     <div class="co-grid">
     <aside class="co-recap">
       <div class="co-item"><img src="${esc(imgOf(p,800))}" alt=""><div><p class="co-name">${esc(p.titre)}</p><p class="co-opt">${esc(o.label)}${o.detail?`<br>${esc(o.detail)}`:""}</p></div></div>
-      <dl class="co-lines"><div><dt>${esc(o.label)}</dt><dd>${money(o.price)}</dd></div><div><dt id="coShipL">Livraison à domicile</dt><dd id="coShip">Incluse</dd></div></dl>
+      <dl class="co-lines"><div><dt>${esc(o.label)}</dt><dd>${money(o.price)}</dd></div><div><dt id="coShipL"></dt><dd id="coShip"></dd></div></dl>
       <div class="co-total"><span>Total</span><b id="coTot">${money(o.price)}</b></div>
       <ul class="co-promise">
-        <li>${ICO.brush}<span>Préparé à la main à l'atelier sous ${esc(B.delai||"5 à 7 jours")}</span></li>
-        <li>${ICO.truck}<span>Livré à domicile, avec suivi en ligne</span></li>
-        <li>${ICO.track}<span>Bon de commande envoyé par e-mail</span></li>
+        <li>${ICO.brush}<span>${t("Préparé à la main à l'atelier sous ","Made by hand in the studio within ")}${esc(td(B.delai||"5 à 7 jours"))}</span></li>
+        <li>${ICO.truck}<span>${t("Livré à domicile, avec suivi en ligne","Delivered to your door, tracked online")}</span></li>
+        <li>${ICO.track}<span>${t("Bon de commande envoyé par e-mail","Order confirmation sent by e-mail")}</span></li>
       </ul>
     </aside>
     <div class="co-form">
-      <fieldset><legend>Vos coordonnées</legend>
-        <div class="field"><label for="co-nom">Nom et prénom</label><input id="co-nom" name="nom" autocomplete="name" required></div>
-        <div class="row2"><div class="field"><label for="co-tel">Téléphone</label><input id="co-tel" name="tel" type="tel" autocomplete="tel" required></div>
+      <fieldset><legend>${t("Vos coordonnées","Your details")}</legend>
+        <div class="field"><label for="co-nom">${t("Nom et prénom","Full name")}</label><input id="co-nom" name="nom" autocomplete="name" required></div>
+        <div class="row2"><div class="field"><label for="co-tel">${t("Téléphone","Phone")}</label><input id="co-tel" name="tel" type="tel" autocomplete="tel" required></div>
         <div class="field"><label for="co-email">E-mail</label><input id="co-email" name="email" type="email" autocomplete="email" required></div></div>
       </fieldset>
-      <fieldset><legend>Livraison</legend>
-        <div class="field"><label for="co-zone">Pays de livraison</label><select id="co-zone" name="zone">${ZONES().map(z=>`<option value="${esc(z.code)}">${esc(z.nom)}${+z[o.key]?` (+${money(z[o.key])})`:" (livraison incluse)"}</option>`).join("")}</select></div>
-        <div class="field" id="coPaysF" hidden><label for="co-pays">Pays</label><input id="co-pays" name="pays" autocomplete="country-name"></div>
-        <div class="field"><label for="co-adresse">Adresse</label><input id="co-adresse" name="adresse" autocomplete="street-address" required placeholder="Rue, numéro, appartement"></div>
-        <div class="row2"><div class="field"><label for="co-ville">Ville</label><input id="co-ville" name="ville" autocomplete="address-level2" required></div>
-        <div class="field"><label for="co-cp">Code postal <span class="opt-l">(facultatif)</span></label><input id="co-cp" name="code_postal" autocomplete="postal-code"></div></div>
-        <details class="co-note"><summary>Ajouter une note pour la livraison</summary><div class="field"><label for="co-note" class="sr">Note</label><textarea id="co-note" name="note" rows="2" placeholder="Code d'entrée, étage, disponibilités…"></textarea></div></details>
+      <fieldset><legend>${t("Livraison","Delivery")}</legend>
+        <div class="field"><label for="co-zone">${t("Pays de livraison","Delivery country")}</label><select id="co-zone" name="zone">${ZONES().map(z=>`<option value="${esc(z.code)}">${esc(td(z.nom))}${+z[o.key]?` (+${money(z[o.key])})`:t(" (livraison incluse)"," (free delivery)")}</option>`).join("")}</select></div>
+        <div class="field" id="coPaysF" hidden><label for="co-pays">${t("Pays","Country")}</label><input id="co-pays" name="pays" autocomplete="country-name"></div>
+        <div class="field"><label for="co-adresse">${t("Adresse","Address")}</label><input id="co-adresse" name="adresse" autocomplete="street-address" required placeholder="${t("Rue, numéro, appartement","Street, number, apartment")}"></div>
+        <div class="row2"><div class="field"><label for="co-ville">${t("Ville","City")}</label><input id="co-ville" name="ville" autocomplete="address-level2" required></div>
+        <div class="field"><label for="co-cp">${t("Code postal","Postal code")} <span class="opt-l">${t("(facultatif)","(optional)")}</span></label><input id="co-cp" name="code_postal" autocomplete="postal-code"></div></div>
+        <details class="co-note"><summary>${t("Ajouter une note pour la livraison","Add a delivery note")}</summary><div class="field"><label for="co-note" class="sr">Note</label><textarea id="co-note" name="note" rows="2" placeholder="${t("Code d'entrée, étage, disponibilités…","Entry code, floor, availability…")}"></textarea></div></details>
       </fieldset>
       <input type="text" name="site" tabindex="-1" autocomplete="off" style="display:none" aria-hidden="true">
-      <div id="coPay" class="co-pay"><button class="btn" type="submit" id="coGo" style="width:100%">Payer <span id="coGoSum">${money(o.price)}</span> ${ICO.lock}</button></div>
+      <div id="coPay" class="co-pay"><button class="btn" type="submit" id="coGo" style="width:100%">${t("Payer","Pay")} <span id="coGoSum">${money(o.price)}</span> ${ICO.lock}</button></div>
       <p class="ok" id="coMsg" role="status" hidden></p>
-      <div class="co-secure">${PAYM}<p>Vous serez redirigé vers la page de paiement sécurisée <b>Grow</b>, à l'enseigne « עמנואל אלימי ארט ». Vos données bancaires ne passent jamais par ce site.</p></div>
+      <div class="co-secure">${PAYM}<p>${t("Vous serez redirigé vers la page de paiement sécurisée <b>Grow</b>, à l'enseigne « <bdi>עמנואל אלימי ארט</bdi> ». Vos données bancaires ne passent jamais par ce site.","You will be taken to the secure <b>Grow</b> payment page, under the name “<bdi>עמנואל אלימי ארט</bdi>”. Your card details never go through this site.")}</p></div>
     </div></div>
   </form>`;
   dlg.showModal();
@@ -522,48 +576,48 @@ function openCheckout(p,o){
   const zSel=document.getElementById("co-zone"), paysF=document.getElementById("coPaysF"), pays=document.getElementById("co-pays");
   const zone=()=>ZONES().find(z=>z.code===zSel.value)||ZONES()[0];
   const syncZone=()=>{ const z=zone(), fee=+z[o.key]||0, il=z.code==="IL";
-    document.getElementById("coShipL").textContent=il?"Livraison à domicile":`Livraison, ${z.nom}`;
-    document.getElementById("coShip").textContent=fee?money(fee):"Incluse";
+    document.getElementById("coShipL").textContent=il?t("Livraison à domicile","Home delivery"):`${t("Livraison","Delivery")}, ${td(z.nom)}`;
+    document.getElementById("coShip").textContent=fee?money(fee):t("Incluse","Free");
     document.getElementById("coTot").textContent=money(o.price+fee); document.getElementById("coGoSum").textContent=money(o.price+fee);
     paysF.hidden=il; pays.required=!il; if(!il && (!pays.value||pays.dataset.auto)){ pays.value=z.code==="FR"?"France":""; pays.dataset.auto=pays.value?"1":""; }
-    document.getElementById("co-tel").previousElementSibling.textContent=il?"Téléphone":"Téléphone (avec indicatif)"; };
+    document.getElementById("co-tel").previousElementSibling.textContent=il?t("Téléphone","Phone"):t("Téléphone (avec indicatif)","Phone (with country code)"); };
   pays.addEventListener("input",()=>{ pays.dataset.auto=""; });
   zSel.addEventListener("change",syncZone); syncZone();
   f.onsubmit=e=>{ e.preventDefault(); say("");
-    if(!f.reportValidity()){ say("Merci de remplir vos coordonnées avant de payer."); return; }
-    const go=document.getElementById("coGo"); go.disabled=true; go.firstChild.textContent="Ouverture du paiement… ";
+    if(!f.reportValidity()){ say(t("Merci de remplir vos coordonnées avant de payer.","Please fill in your details before paying.")); return; }
+    const go=document.getElementById("coGo"); go.disabled=true; go.firstChild.textContent=t("Ouverture du paiement… ","Opening payment… ");
     api("creer",{produit_id:p.id, option:o.key, zone:zone().code, client:client(), site:new FormData(f).get("site")})
       .then(r=>{ location.href=r.url; })
-      .catch(e=>{ say(e.message); go.disabled=false; go.firstChild.textContent="Payer "; });
+      .catch(e=>{ say(e.message); go.disabled=false; go.firstChild.textContent=t("Payer ","Pay "); });
   };
 }
 
 /* ---------- suivi de commande (client) ---------- */
-const STEPS=[["payee","Payée"],["en_preparation","En préparation"],["expediee","Expédiée"],["livree","Livrée"]];
+const STEPS=()=>[["payee",t("Payée","Paid")],["en_preparation",t("En préparation","In preparation")],["expediee",t("Expédiée","Shipped")],["livree",t("Livrée","Delivered")]];
 function suiviPage(token){
   if (!document.getElementById("suiviBody")) suiviPage.n=0;
   setTimeout(()=>{
     api("suivi",{token}).then(c=>{
       if (c.statut==="en_attente"){
         const n=(suiviPage.n=(suiviPage.n||0)+1);
-        document.getElementById("suiviNum").textContent=`Commande ${c.numero}`;
+        document.getElementById("suiviNum").textContent=`${t("Commande","Order")} ${c.numero}`;
         document.getElementById("suiviBody").innerHTML = n<20
-          ? `<p class="lede">Merci ! Nous attendons la confirmation de votre paiement, cela prend quelques secondes…</p>`
-          : `<p class="lede">Le paiement n'est pas encore confirmé. Si vous avez été débité, vous recevrez le bon de commande par e-mail dans quelques minutes. Sinon, vous pouvez repasser commande depuis la boutique.</p>`;
+          ? `<p class="lede">${t("Merci ! Nous attendons la confirmation de votre paiement, cela prend quelques secondes…","Thank you! We are waiting for your payment confirmation, it takes a few seconds…")}</p>`
+          : `<p class="lede">${t("Le paiement n'est pas encore confirmé. Si vous avez été débité, vous recevrez le bon de commande par e-mail dans quelques minutes. Sinon, vous pouvez repasser commande depuis la boutique.","The payment is not confirmed yet. If you were charged, you will receive your order confirmation by e-mail within a few minutes. Otherwise, you can order again from the shop.")}</p>`;
         if (n<20 && location.hash==="#suivi/"+token) setTimeout(()=>{ if(location.hash==="#suivi/"+token) suiviPage(token); },3000);
         return;
       }
-      const at=STEPS.findIndex(s=>s[0]===c.statut), when=s=>{ const h=(c.historique||[]).filter(x=>x.statut===s).pop(); return h?new Date(h.created_at).toLocaleDateString("fr-FR",{day:"numeric",month:"long"}):""; };
-      document.getElementById("suiviBody").innerHTML = (c.statut==="annulee" ? `<p class="lede">Cette commande a été annulée.</p>` :
-        `<ol class="steps">${STEPS.map((s,i)=>`<li class="${i<=at?"done":""}${i===at?" now":""}"><b>${s[1]}</b><span>${when(s[0])}</span></li>`).join("")}</ol>`) +
-        `<dl class="facts"><div><dt>Œuvre</dt><dd>${esc(c.produit)}</dd></div><div><dt>Option</dt><dd>${esc(c.option)}</dd></div><div><dt>Total</dt><dd>${money(c.prix)}${+c.frais_livraison?` (dont livraison ${money(c.frais_livraison)})`:""}</dd></div><div><dt>Livraison</dt><dd>À domicile, ${esc(c.ville)}${c.pays&&c.pays!=="Israël"?`, ${esc(c.pays)}`:""}</dd></div>
-        ${c.transporteur||c.suivi_numero?`<div><dt>Colis</dt><dd>${esc(c.transporteur)} ${esc(c.suivi_numero)}${c.suivi_url?` · <a href="${esc(c.suivi_url)}" target="_blank" rel="noopener">suivre le colis</a>`:""}</dd></div>`:""}</dl>
-        ${(c.historique||[]).filter(h=>h.message).map(h=>`<p class="note-msg"><span class="eyebrow">${esc(h.label)}</span>${esc(h.message)}</p>`).join("")}`;
-      document.getElementById("suiviNum").textContent=`Commande ${c.numero}`;
-    }).catch(e=>{ document.getElementById("suiviBody").innerHTML=`<p class="lede">${esc(e.message)} Vérifiez le lien reçu par e-mail, ou écrivez-nous.</p>`; });
+      const ST=STEPS(), at=ST.findIndex(s=>s[0]===c.statut), when=s=>{ const h=(c.historique||[]).filter(x=>x.statut===s).pop(); return h?new Date(h.created_at).toLocaleDateString(t("fr-FR","en-GB"),{day:"numeric",month:"long"}):""; };
+      document.getElementById("suiviBody").innerHTML = (c.statut==="annulee" ? `<p class="lede">${t("Cette commande a été annulée.","This order has been cancelled.")}</p>` :
+        `<ol class="steps">${ST.map((s,i)=>`<li class="${i<=at?"done":""}${i===at?" now":""}"><b>${s[1]}</b><span>${when(s[0])}</span></li>`).join("")}</ol>`) +
+        `<dl class="facts"><div><dt>${t("Œuvre","Artwork")}</dt><dd>${esc(c.produit)}</dd></div><div><dt>Option</dt><dd>${esc(td(c.option))}</dd></div><div><dt>Total</dt><dd>${money(c.prix)}${+c.frais_livraison?t(` (dont livraison ${money(c.frais_livraison)})`,` (incl. ${money(c.frais_livraison)} delivery)`):""}</dd></div><div><dt>${t("Livraison","Delivery")}</dt><dd>${t("À domicile","To your door")}, ${esc(c.ville)}${c.pays&&c.pays!=="Israël"?`, ${esc(c.pays)}`:""}</dd></div>
+        ${c.transporteur||c.suivi_numero?`<div><dt>${t("Colis","Parcel")}</dt><dd>${esc(c.transporteur)} ${esc(c.suivi_numero)}${c.suivi_url?` · <a href="${esc(c.suivi_url)}" target="_blank" rel="noopener">${t("suivre le colis","track the parcel")}</a>`:""}</dd></div>`:""}</dl>
+        ${(c.historique||[]).filter(h=>h.message).map(h=>`<p class="note-msg"><span class="eyebrow">${esc(td(h.label))}</span>${esc(h.message)}</p>`).join("")}`;
+      document.getElementById("suiviNum").textContent=`${t("Commande","Order")} ${c.numero}`;
+    }).catch(e=>{ document.getElementById("suiviBody").innerHTML=`<p class="lede">${esc(e.message)} ${t("Vérifiez le lien reçu par e-mail, ou écrivez-nous.","Check the link in your e-mail, or write to us.")}</p>`; });
   });
-  return `<div class="wrap page-head reveal"><p class="eyebrow" id="suiviNum">Suivi de commande</p><h1>Ma commande<span class="heart">.</span></h1></div>
-  <div class="wrap suivi" id="suiviBody"><p class="form-note">Chargement…</p></div>`;
+  return `<div class="wrap page-head reveal"><p class="eyebrow" id="suiviNum">${t("Suivi de commande","Order tracking")}</p><h1>${t("Ma commande","My order")}<span class="heart">.</span></h1></div>
+  <div class="wrap suivi" id="suiviBody"><p class="form-note">${t("Chargement…","Loading…")}</p></div>`;
 }
 
 /* ---------- rendering ---------- */
@@ -575,7 +629,7 @@ function workFig(list, i, code){
   const [id,title,w,h] = list[i];
   const ratio = (w&&h)?` width="${w}" height="${h}"`:"";
   const cat = code?`${code}-${String(i+1).padStart(2,"0")}`:"";
-  return `<button class="work" data-i="${i}"><figure style="margin:0"><div class="frame"><img loading="lazy" src="${src(id,800)}"${ratio} alt="${esc(title||"Œuvre d'Emmanuel Alimi")}"></div>
+  return `<button class="work" data-i="${i}"><figure style="margin:0"><div class="frame"><img loading="lazy" src="${src(id,800)}"${ratio} alt="${esc(title||t("Œuvre d'Emmanuel Alimi","Artwork by Emmanuel Alimi"))}"></div>
   ${(title||cat)?`<figcaption><span>${esc(title)}</span><span class="cat">${cat}</span></figcaption>`:""}</figure></button>`;
 }
 function masonry(list, code){
@@ -587,103 +641,117 @@ function head(eyebrow, title, lede, crumb){
 }
 function collIndex(){
   return `<div class="colls">${COLLECTIONS.map(c=>`<a class="coll" href="#${c.slug}"><div class="frame"><img loading="lazy" src="${src(c.cover,800)}" alt="${esc(c.name)}"></div>
-  <div class="meta"><h3>${esc(c.name)}</h3><span class="count">${String(c.works.length).padStart(2,"0")} œuvres</span></div></a>`).join("")}</div>`;
+  <div class="meta"><h3>${esc(c.name)}</h3><span class="count">${String(c.works.length).padStart(2,"0")} ${t("œuvres","works")}</span></div></a>`).join("")}</div>`;
 }
 
 const ROUTES = {
   accueil(){
     return `<div class="wrap hero reveal">
-      <h1>Offrez-vous<br>de l'art<em>.</em></h1>
-      <div class="hero-row"><p class="lede">Peintre, portraitiste et caricaturiste. Œuvres originales, commandes personnalisées et live painting pour vos événements.</p>
-      <a class="btn" href="#collections">Voir les œuvres</a></div>
+      <h1>${t("Offrez-vous<br>de l'art","Treat yourself<br>to art")}<em>.</em></h1>
+      <div class="hero-row"><p class="lede">${t("Peintre, portraitiste et caricaturiste. Œuvres originales, commandes personnalisées et live painting pour vos événements.","Painter, portraitist and caricaturist. Original works, commissions and live painting for your events.")}</p>
+      <a class="btn" href="#collections">${t("Voir les œuvres","See the works")}</a></div>
       ${S.accueil?`<div class="hero-banner"><img src="${src(S.accueil,1600)}" alt="The LoveSpreader, Respire Collection"></div>`:""}
     </div>
-    <section class="wrap"><div class="sec-head"><h2>Collections</h2><span class="eyebrow">${COLLECTIONS.length} séries</span></div>${collIndex()}</section>
-    <section class="wrap"><div class="sec-head"><h2>À l'atelier</h2><span class="eyebrow">En cours</span></div>${masonry(ATELIER,"")}</section>
-    <section class="wrap"><div class="sec-head"><h2>Événements</h2><a class="eyebrow" href="#evenements">Tout voir</a></div>${eventsGrid()}</section>
+    <section class="wrap"><div class="sec-head"><h2>Collections</h2><span class="eyebrow">${COLLECTIONS.length} ${t("séries","series")}</span></div>${collIndex()}</section>
+    <section class="wrap"><div class="sec-head"><h2>${t("À l'atelier","In the studio")}</h2><span class="eyebrow">${t("En cours","In progress")}</span></div>${masonry(ATELIER,"")}</section>
+    <section class="wrap"><div class="sec-head"><h2>${t("Événements","Events")}</h2><a class="eyebrow" href="#evenements">${t("Tout voir","See all")}</a></div>${eventsGrid()}</section>
     ${contactBlock()}`;
   },
-  collections(){ return head("Galerie","Collections",`${COLLECTIONS.length} séries, du trait noir de Respire aux portraits sur commande.`)+`<div class="wrap" style="padding-bottom:40px">${collIndex()}</div>`; },
-  "graphic-design"(){ return head("Studio","Graphic design","Identités, affiches, pochettes et supports imprimés.")+`<div class="wrap">${masonry(GRAPHIC,"GRA")}</div>`; },
+  collections(){ return head(t("Galerie","Gallery"),"Collections",t(`${COLLECTIONS.length} séries, du trait noir de Respire aux portraits sur commande.`,`${COLLECTIONS.length} series, from the black line of Respire to commissioned portraits.`))+`<div class="wrap" style="padding-bottom:40px">${collIndex()}</div>`; },
+  "graphic-design"(){ return head("Studio","Graphic design",t("Identités, affiches, pochettes et supports imprimés.","Brand identities, posters, album covers and print."))+`<div class="wrap">${masonry(GRAPHIC,"GRA")}</div>`; },
   evenements(){
     const p=EVENTS.painting;
-    return head("Sur réservation","Événements","Caricature et peinture en direct pour vos fêtes. Pour réserver ou en savoir plus, écrivez-nous.")+
+    return head(t("Sur réservation","By booking"),t("Événements","Events"),t("Caricature et peinture en direct pour vos fêtes. Pour réserver ou en savoir plus, écrivez-nous.","Live caricature and painting for your celebrations. To book or learn more, write to us."))+
     `<div class="wrap">${eventsGrid()}</div>
-    <section class="wrap"><div class="sec-head"><h2>Live painting</h2><span class="eyebrow">En images</span></div>${masonry(p.gallery,"")}</section>
-    <div class="wrap"><a class="btn" href="#contact" data-subject="Réservation événement">Réserver une date</a></div>`;
+    <section class="wrap"><div class="sec-head"><h2>Live painting</h2><span class="eyebrow">${t("En images","In pictures")}</span></div>${masonry(p.gallery,"")}</section>
+    <div class="wrap"><a class="btn" href="#contact" data-subject="${t("Réservation événement","Event booking")}">${t("Réserver une date","Book a date")}</a></div>`;
   },
   boutique(){
-    if (liveState==="loading") return head("Boutique", `${esc(B.titre||"Prints")}<span class="heart">.</span>`, B.intro||"")+`<div class="wrap"><p class="form-note">Chargement des prints…</p></div>`;
+    if (liveState==="loading") return head(t("Boutique","Shop"), `${esc(B.titre||"Prints")}<span class="heart">.</span>`, td(B.intro)||"")+`<div class="wrap"><p class="form-note">${t("Chargement des prints…","Loading prints…")}</p></div>`;
     const list = SHOP();
-    if (!list.length) return `<div class="wrap soon reveal"><p class="eyebrow">Boutique</p><h1>Coming<br>soon<span class="heart">.</span></h1>
-    <p class="lede">La boutique en ligne arrive bientôt. En attendant, pour une œuvre ou une commande personnalisée, écrivez-nous.</p>
-    <a class="btn" href="#contact" data-subject="Boutique">Nous écrire</a></div>`;
-    const delai = B.delai||"5 à 7 jours", intl = ZONES().length>1;
+    if (!list.length) return `<div class="wrap soon reveal"><p class="eyebrow">${t("Boutique","Shop")}</p><h1>Coming<br>soon<span class="heart">.</span></h1>
+    <p class="lede">${t("La boutique en ligne arrive bientôt. En attendant, pour une œuvre ou une commande personnalisée, écrivez-nous.","The online shop is coming soon. Meanwhile, for a work or a commission, write to us.")}</p>
+    <a class="btn" href="#contact" data-subject="Boutique">${t("Nous écrire","Write to us")}</a></div>`;
+    const delai = td(B.delai||"5 à 7 jours"), intl = ZONES().length>1;
     const trust = LIVE ? `<ul class="trust">
-        <li>${ICO.lock}<div><b>Paiement sécurisé</b><span>Carte, Bit, Apple Pay ou Google Pay, via Grow.</span></div></li>
-        <li>${ICO.truck}<div><b>Livraison incluse en Israël</b><span>À domicile.${intl?" Envoi à l'étranger possible.":""}</span></div></li>
-        <li>${ICO.brush}<div><b>Préparé à la main</b><span>Imprimé et encadré à l'atelier sous ${esc(delai)}.</span></div></li>
-        <li>${ICO.track}<div><b>Suivi de commande</b><span>Bon de commande par e-mail et suivi en ligne.</span></div></li>
-      </ul>` : (B.points||[]).length?`<ul class="tags shop-tags">${B.points.map(t=>`<li>${esc(t)}</li>`).join("")}</ul>`:"";
-    const faq = [
+        <li>${ICO.lock}<div><b>${t("Paiement sécurisé","Secure payment")}</b><span>${t("Carte, Bit, Apple Pay ou Google Pay, via Grow.","Card, Bit, Apple Pay or Google Pay, via Grow.")}</span></div></li>
+        <li>${ICO.truck}<div><b>${t("Livraison incluse en Israël","Free delivery in Israel")}</b><span>${t("À domicile.","To your door.")}${intl?t(" Envoi à l'étranger possible."," International shipping available."):""}</span></div></li>
+        <li>${ICO.brush}<div><b>${t("Préparé à la main","Made by hand")}</b><span>${t(`Imprimé et encadré à l'atelier sous ${esc(delai)}.`,`Printed and framed in the studio within ${esc(delai)}.`)}</span></div></li>
+        <li>${ICO.track}<div><b>${t("Suivi de commande","Order tracking")}</b><span>${t("Bon de commande par e-mail et suivi en ligne.","E-mail confirmation and online tracking.")}</span></div></li>
+      </ul>` : (B.points||[]).length?`<ul class="tags shop-tags">${B.points.map(x=>`<li>${esc(td(x))}</li>`).join("")}</ul>`:"";
+    const faq = LANG==="en" ? [
+      ["When will I receive my print?", `Each print is made in the studio within ${delai}, then delivered to your door. You get an e-mail at every step (in preparation, shipped) and can track your order online at any time.`],
+      ["Do you ship outside Israel?", intl ? `Yes: to France, the USA and Canada, and the rest of the world. The shipping fee is shown before payment, so you know the total price before you pay.` : `For shipping outside Israel, please write to us before ordering.`],
+      ["Is the payment secure?", `Yes. Payment is made on the secure page of Grow, an Israeli payment provider, under the name “עמנואל אלימי ארט”. Your card details never go through this site. Credit card, Bit, Apple Pay and Google Pay are accepted.`],
+      ["My parcel arrived damaged, what should I do?", `Write to us as soon as it arrives, with a photo of the parcel and the print. We will find the best solution together.`],
+      ["I have a question before ordering.", `Write to us at ${EMAIL} or on Instagram @alimi_art. We reply within 48 hours.`],
+    ] : [
       ["Quand vais-je recevoir mon print ?", `Chaque print est préparé à l'atelier sous ${delai}, puis livré à votre domicile. Vous recevez un e-mail à chaque étape (en préparation, expédié) et vous pouvez suivre votre commande en ligne à tout moment.`],
       ["Livrez-vous hors d'Israël ?", intl ? `Oui : en France, aux États-Unis et au Canada, et dans le reste du monde. Le supplément de livraison s'affiche avant le paiement, vous connaissez le prix total avant de payer.` : `Pour un envoi hors d'Israël, écrivez-nous avant de commander.`],
       ["Le paiement est-il sécurisé ?", `Oui. Le paiement se fait sur la page sécurisée de Grow, prestataire de paiement israélien, à l'enseigne « עמנואל אלימי ארט ». Vos données bancaires ne passent jamais par ce site. Carte bancaire, Bit, Apple Pay et Google Pay sont acceptés.`],
       ["Mon colis arrive abîmé, que faire ?", `Écrivez-nous dès réception, avec une photo du colis et du print. Nous trouverons ensemble la meilleure solution.`],
       ["J'ai une question avant de commander.", `Écrivez-nous à ${EMAIL} ou sur Instagram @alimi_art. Réponse sous 48 h.`],
     ];
-    if (!LIVE) return head("Boutique", `${esc(B.titre||"Prints")}<span class="heart">.</span>`, B.intro||"")+
+    if (!LIVE) return head(t("Boutique","Shop"), `${esc(B.titre||"Prints")}<span class="heart">.</span>`, td(B.intro)||"")+
     `<div class="wrap">${trust}<div class="prints">${list.map(printCard).join("")}</div></div>
-    <section class="wrap"><div class="sec-head"><h2>Œuvres originales</h2><span class="eyebrow">Sur demande</span></div>
-      <div class="split" style="align-items:start"><p class="lede" style="margin:0">${esc(B.originaux||"")}</p>
-      <div><a class="btn" href="#contact" data-subject="Acquisition d'une œuvre">Acquérir une œuvre</a></div></div></section>
-    ${(B.infos||[]).length?`<section class="wrap" style="padding-top:0"><div class="shop-info">${B.infos.map(x=>`<div><h3>${esc(x.titre)}</h3><p>${esc(x.texte)}</p></div>`).join("")}</div></section>`:""}`;
+    <section class="wrap"><div class="sec-head"><h2>${t("Œuvres originales","Original works")}</h2><span class="eyebrow">${t("Sur demande","On request")}</span></div>
+      <div class="split" style="align-items:start"><p class="lede" style="margin:0">${esc(td(B.originaux)||"")}</p>
+      <div><a class="btn" href="#contact" data-subject="${t("Acquisition d'une œuvre","Acquiring a work")}">${t("Acquérir une œuvre","Acquire a work")}</a></div></div></section>
+    ${(B.infos||[]).length?`<section class="wrap" style="padding-top:0"><div class="shop-info">${B.infos.map(x=>`<div><h3>${esc(td(x.titre))}</h3><p>${esc(td(x.texte))}</p></div>`).join("")}</div></section>`:""}`;
     return `<div class="shop">
-    <div class="wrap shop-head reveal"><p class="eyebrow">Boutique</p><h1>${esc(B.titre||"Prints")}<span class="heart">.</span></h1>
-      <p class="lede">${esc(B.intro||"")}</p></div>
+    <div class="wrap shop-head reveal"><p class="eyebrow">${t("Boutique","Shop")}</p><h1>${esc(B.titre||"Prints")}<span class="heart">.</span></h1>
+      <p class="lede">${esc(td(B.intro)||"")}</p></div>
     <div class="wrap">${trust}
-      <ol class="how-mini" aria-label="Comment ça marche"><li><b>1</b>Vous choisissez votre print</li><li><b>2</b>Vous payez en sécurité sur Grow</li><li><b>3</b>On le prépare à l'atelier</li><li><b>4</b>Il est livré chez vous</li></ol>
+      <ol class="how-mini">${t(["Vous choisissez votre print","Vous payez en sécurité sur Grow","On le prépare à l'atelier","Il est livré chez vous"],["You choose your print","You pay securely on Grow","We make it in the studio","It's delivered to your door"]).map((x,i)=>`<li><b>${i+1}</b>${x}</li>`).join("")}</ol>
       <div class="prints">${list.map(printCard).join("")}</div></div>
-    <section class="wrap shop-help"><div class="faq-col"><h2>Questions fréquentes</h2>
+    <section class="wrap shop-help"><div class="faq-col"><h2>${t("Questions fréquentes","FAQ")}</h2>
       <div class="faq">${faq.map(([q,a])=>`<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</div></div>
-      <aside class="ask"><p class="eyebrow">Une question ?</p><p>Emmanuel vous répond personnellement, sous 48 h.</p>
-      <a class="btn" href="#contact" data-subject="Commande boutique">Nous écrire</a>
+      <aside class="ask"><p class="eyebrow">${t("Une question ?","A question?")}</p><p>${t("Emmanuel vous répond personnellement, sous 48 h.","Emmanuel will reply personally, within 48 hours.")}</p>
+      <a class="btn" href="#contact" data-subject="${t("Commande boutique","Shop order")}">${t("Nous écrire","Write to us")}</a>
       <p class="form-note">${esc(EMAIL)}<br>Instagram @alimi_art</p></aside></section>
-    <section class="wrap shop-orig"><h2>Œuvres originales</h2><p>${esc(B.originaux||"")}</p>
-      <a class="btn ghost" href="#contact" data-subject="Acquisition d'une œuvre">Acquérir une œuvre</a></section></div>`;
+    <section class="wrap shop-orig"><h2>${t("Œuvres originales","Original works")}</h2><p>${esc(td(B.originaux)||"")}</p>
+      <a class="btn ghost" href="#contact" data-subject="${t("Acquisition d'une œuvre","Acquiring a work")}">${t("Acquérir une œuvre","Acquire a work")}</a></section></div>`;
   },
   alimi(){
-    return head("Biographie","Qui est Alimi ?","")+`<div class="wrap"><div class="bio">
+    const P = LANG==="en" ? [
+      "Born in France in 1995, Emmanuel left his native country for his Promised Land, with one promise in mind: to share his art and help people discover it.",
+      "An artist stuck in a programmer's body, his talent exploded at 13, when he started painting the little voices in his head, from Ray Charles to Robert De Niro and Bob Dylan.",
+      "Pop culture remains an obvious influence, but Alimi chose to step away from it and create for the sake of creating, a kind of escape for a boiling mind.",
+      "Today a budding caricaturist, expert portraitist, future prime minister (or future Mark Zuckerberg), the son of Superman has decided to take action and create great works for YOU alone!",
+    ] : [
+      "Né en France en 1995, Emmanuel quitte son pays natal pour sa Terre Promise, avec une promesse en tête : réussir à partager et faire découvrir son art.",
+      "Artiste coincé dans le corps d'un informaticien, son talent explose à l'âge de 13 ans, où il commence à peindre les petites voix dans sa tête, de Ray Charles à Robert De Niro en passant par Bob Dylan.",
+      "La Pop Culture restant une influence évidente pour Alimi, il décide de s'en détacher et de créer pour créer, une sorte d'échappatoire pour un cerveau en ébullition.",
+      "Aujourd'hui caricaturiste en herbe, expert portraitiste, futur premier ministre (ou futur Mark Zuckerberg), le fils de Superman décide de passer à l'action et de réaliser de grandes œuvres pour VOUS seulement !",
+    ];
+    return head(t("Biographie","Biography"),t("Qui est Alimi ?","Who is Alimi?"),"")+`<div class="wrap"><div class="bio">
       <img class="portrait" src="${src(S.portrait,1200)}" alt="Emmanuel Alimi">
-      <div><p>Né en France en 1995, Emmanuel quitte son pays natal pour sa Terre Promise, avec une promesse en tête : réussir à partager et faire découvrir son art.</p>
-      <p>Artiste coincé dans le corps d'un informaticien, son talent explose à l'âge de 13 ans, où il commence à peindre les petites voix dans sa tête, de Ray Charles à Robert De Niro en passant par Bob Dylan.</p>
-      <p>La Pop Culture restant une influence évidente pour Alimi, il décide de s'en détacher et de créer pour créer, une sorte d'échappatoire pour un cerveau en ébullition.</p>
-      <p>Aujourd'hui caricaturiste en herbe, expert portraitiste, futur premier ministre (ou futur Mark Zuckerberg), le fils de Superman décide de passer à l'action et de réaliser de grandes œuvres pour VOUS seulement !</p>
-      <blockquote style="margin-top:36px">« L'art est un anti-destin. »<cite>André Malraux</cite></blockquote>
-      <p style="margin-top:28px">Et maintenant, l'art est accessible à tous. Shalom !</p></div></div></div>`;
+      <div>${P.map(x=>`<p>${esc(x)}</p>`).join("")}
+      <blockquote style="margin-top:36px">${t("« L'art est un anti-destin. »","“Art is an anti-destiny.”")}<cite>André Malraux</cite></blockquote>
+      <p style="margin-top:28px">${t("Et maintenant, l'art est accessible à tous. Shalom !","And now, art is for everyone. Shalom!")}</p></div></div></div>`;
   },
   contact(){ return contactBlock(true); }
 };
 
 function eventsGrid(){
-  return `<div class="events">${Object.values(EVENTS).map(e=>`<a class="event" href="#contact" data-subject="Réservation : ${esc(e.name)}"><div class="frame"><img loading="lazy" src="${src(e.img,800)}" alt="${esc(e.name)}"></div>
+  return `<div class="events">${Object.values(EVENTS).map(e=>`<a class="event" href="#contact" data-subject="${t("Réservation","Booking")} : ${esc(e.name)}"><div class="frame"><img loading="lazy" src="${src(e.img,800)}" alt="${esc(e.name)}"></div>
   <h3>${esc(e.name)}</h3><p style="margin:0;color:var(--muted)">${esc(e.text)}</p><ul class="tags">${e.tags.map(t=>`<li>${esc(t)}</li>`).join("")}</ul></a>`).join("")}</div>`;
 }
 function contactBlock(full){
   return `<section class="wrap" id="contact-sec"><div class="contact">
-   <div class="contact-head"><p class="eyebrow">Commandes, tarifs, événements</p><h2 style="margin-top:12px">Contact<span class="heart">♥</span></h2></div>
-   <div><p class="lede" style="margin-top:0">Vous désirez passer une commande personnalisée ou connaître les tarifs ? Écrivez-nous, réponse sous 48 h.</p>
-     <div class="mail-row"><span class="mail" id="mailtxt">${EMAIL}</span><button class="copy" id="copyMail" type="button">Copier</button></div>
+   <div class="contact-head"><p class="eyebrow">${t("Commandes, tarifs, événements","Commissions, prices, events")}</p><h2 style="margin-top:12px">Contact<span class="heart">♥</span></h2></div>
+   <div><p class="lede" style="margin-top:0">${t("Vous désirez passer une commande personnalisée ou connaître les tarifs ? Écrivez-nous, réponse sous 48 h.","Would you like to commission a work or know the prices? Write to us, we reply within 48 hours.")}</p>
+     <div class="mail-row"><span class="mail" id="mailtxt">${EMAIL}</span><button class="copy" id="copyMail" type="button">${t("Copier","Copy")}</button></div>
      <div class="socials"><a href="https://www.instagram.com/alimi_art/" target="_blank" rel="noopener">Instagram @alimi_art</a><a href="https://www.facebook.com/alimiarts" target="_blank" rel="noopener">Facebook</a></div></div>
    <form id="cform" novalidate>
-     <div class="row2"><div class="field"><label for="f-name">Nom</label><input id="f-name" name="name" autocomplete="name" required></div>
+     <div class="row2"><div class="field"><label for="f-name">${t("Nom","Name")}</label><input id="f-name" name="name" autocomplete="name" required></div>
      <div class="field"><label for="f-mail">E-mail</label><input id="f-mail" name="email" type="email" autocomplete="email" required></div></div>
-     <div class="field"><label for="f-subj">Objet</label><select id="f-subj" name="subject">
-       <option>Commande personnalisée</option><option>Portrait</option><option>Réservation événement</option><option>Commande boutique</option><option>Acquisition d'une œuvre</option><option>Autre</option></select></div>
+     <div class="field"><label for="f-subj">${t("Objet","Subject")}</label><select id="f-subj" name="subject">
+       ${t(["Commande personnalisée","Portrait","Réservation événement","Commande boutique","Acquisition d'une œuvre","Autre"],["Commission","Portrait","Event booking","Shop order","Acquiring a work","Other"]).map(x=>`<option>${x}</option>`).join("")}</select></div>
      <div class="field"><label for="f-msg">Message</label><textarea id="f-msg" name="message" required></textarea></div>
      <input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" style="display:none" aria-hidden="true">
-     <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"><button class="btn" type="submit" id="fsend">Envoyer</button><span class="ok" id="fok" role="status" hidden></span></div>
-     <p class="form-note">Votre message nous parvient directement. Réponse sous 48 h, à l'adresse e-mail indiquée.</p>
+     <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"><button class="btn" type="submit" id="fsend">${t("Envoyer","Send")}</button><span class="ok" id="fok" role="status" hidden></span></div>
+     <p class="form-note">${t("Votre message nous parvient directement. Réponse sous 48 h, à l'adresse e-mail indiquée.","Your message comes straight to us. We reply within 48 hours, to the e-mail address you give.")}</p>
    </form></div></section>`;
 }
 
@@ -693,10 +761,10 @@ function render(){
   let html;
   if (coll){
     html = head("","" ,"",coll.name).replace("<h1></h1>",`<h1>${esc(coll.name)}</h1><p class="lede">${esc(coll.intro)}</p>`);
-    if (coll.banners && coll.banners.length) html += `<div class="wrap"><div class="wide-strip" data-lb>${coll.banners.slice(0,3).map((b,i)=>`<button class="work" data-i="${i}"><div class="frame"><img loading="lazy" src="${src(b[0],1600)}" alt="${esc(b[1])}"></div><figcaption><span>${esc(b[1])}</span><span class="cat">Bannière</span></figcaption></button>`).join("")}</div></div>`;
+    if (coll.banners && coll.banners.length) html += `<div class="wrap"><div class="wide-strip" data-lb>${coll.banners.slice(0,3).map((b,i)=>`<button class="work" data-i="${i}"><div class="frame"><img loading="lazy" src="${src(b[0],1600)}" alt="${esc(b[1])}"></div><figcaption><span>${esc(b[1])}</span><span class="cat">${t("Bannière","Banner")}</span></figcaption></button>`).join("")}</div></div>`;
     html += `<div class="wrap">${masonry(coll.works, coll.code)}</div>`;
     const others = COLLECTIONS.filter(c=>c!==coll);
-    html += `<section class="wrap"><div class="sec-head"><h2>Autres séries</h2></div><div class="colls">${others.map(c=>`<a class="coll" href="#${c.slug}"><div class="frame"><img loading="lazy" src="${src(c.cover,800)}" alt="${esc(c.name)}"></div><div class="meta"><h3>${esc(c.name)}</h3><span class="count">${String(c.works.length).padStart(2,"0")} œuvres</span></div></a>`).join("")}</div></section>`;
+    html += `<section class="wrap"><div class="sec-head"><h2>${t("Autres séries","Other series")}</h2></div><div class="colls">${others.map(c=>`<a class="coll" href="#${c.slug}"><div class="frame"><img loading="lazy" src="${src(c.cover,800)}" alt="${esc(c.name)}"></div><div class="meta"><h3>${esc(c.name)}</h3><span class="count">${String(c.works.length).padStart(2,"0")} ${t("œuvres","works")}</span></div></a>`).join("")}</div></section>`;
     LBSRC = {lists:[coll.banners?coll.banners.slice(0,3).map(b=>[b[0],b[1]]):null, coll.works]};
   } else {
     html = route.startsWith("suivi/") && LIVE ? suiviPage(route.slice(6)) : (ROUTES[route]||ROUTES.accueil)();
@@ -727,7 +795,7 @@ function wire(route, coll){
   if (route==="boutique") wireShop();
   const copy=document.getElementById("copyMail");
   if (copy) copy.addEventListener("click",()=>{
-    const done=()=>{copy.textContent="Copié";setTimeout(()=>copy.textContent="Copier",1600);};
+    const done=()=>{copy.textContent=t("Copié","Copied");setTimeout(()=>copy.textContent=t("Copier","Copy"),1600);};
     try{ navigator.clipboard.writeText(EMAIL).then(done,()=>selectMail()); }catch(e){ selectMail(); }
   });
   const f=document.getElementById("cform");
@@ -738,17 +806,17 @@ function wire(route, coll){
     const d=new FormData(f);
     const btn=document.getElementById("fsend");
     d.append("access_key",FORM_KEY);
-    d.set("subject",`${d.get("subject")} : message de ${d.get("name")} (emmanuelalimi.com)`);
+    d.set("subject",`${d.get("subject")} : message de ${d.get("name")} (emmanuelalimi.com${LANG==="en"?", EN":""})`);
     d.append("from_name","Site emmanuelalimi.com");
     d.append("replyto",d.get("email"));
-    btn.disabled=true; btn.textContent="Envoi…"; ok.hidden=true;
+    btn.disabled=true; btn.textContent=t("Envoi…","Sending…"); ok.hidden=true;
     fetch("https://api.web3forms.com/submit",{method:"POST",body:d,headers:{Accept:"application/json"}})
       .then(r=>r.json()).then(j=>{
         if(!j.success) throw new Error(j.message||"erreur");
-        f.reset(); ok.hidden=false; ok.textContent="Merci, votre message est bien envoyé. Réponse sous 48 h.";
+        f.reset(); ok.hidden=false; ok.textContent=t("Merci, votre message est bien envoyé. Réponse sous 48 h.","Thank you, your message has been sent. We reply within 48 hours.");
       }).catch(()=>{
-        ok.hidden=false; ok.textContent=`L'envoi n'a pas abouti. Écrivez-nous directement à ${EMAIL}.`;
-      }).finally(()=>{ btn.disabled=false; btn.textContent="Envoyer"; });
+        ok.hidden=false; ok.textContent=t(`L'envoi n'a pas abouti. Écrivez-nous directement à ${EMAIL}.`,`Sending failed. Please write to us directly at ${EMAIL}.`);
+      }).finally(()=>{ btn.disabled=false; btn.textContent=t("Envoyer","Send"); });
   });
 }
 function selectMail(){const r=document.createRange();r.selectNodeContents(document.getElementById("mailtxt"));const s=getSelection();s.removeAllRanges();s.addRange(r);}
@@ -771,6 +839,19 @@ lb.addEventListener("touchend",e=>{ if(tx===null)return; const dx=e.changedTouch
 document.getElementById("menuBtn").onclick=e=>{ const n=document.getElementById("nav"); n.classList.toggle("open"); e.currentTarget.setAttribute("aria-expanded",n.classList.contains("open")); };
 if (LOGO) document.getElementById("sigimg").src=src(LOGO,200);
 document.getElementById("yr").textContent=new Date().getFullYear();
+const NAV = {fr:["Collections","Graphic design","Événements","Boutique","Qui est Alimi","Contact"], en:["Collections","Graphic design","Events","Shop","About","Contact"]};
+function applyLang(){
+  document.documentElement.lang = LANG;
+  document.querySelectorAll(".nav a").forEach((a,i)=>a.textContent=NAV[LANG][i]);
+  const lb2=document.getElementById("langBtn"); lb2.textContent = LANG==="en" ? "FR" : "EN"; lb2.lang = LANG==="en" ? "fr" : "en";
+  lb2.setAttribute("aria-label", LANG==="en" ? "Version française" : "English version");
+  document.getElementById("lbClose").textContent=t("Fermer","Close");
+  document.getElementById("lbPrev").textContent=t("← Préc.","← Prev");
+  document.getElementById("lbNext").textContent=t("Suiv. →","Next →");
+  buildColl(); buildEvents();
+}
+document.getElementById("langBtn").onclick=()=>{ LANG = LANG==="en" ? "fr" : "en"; try{ localStorage.setItem("lang",LANG); }catch(e){} applyLang(); render(); };
+applyLang();
 window.addEventListener("hashchange",()=>{ if(location.hash==="#contact" && sessionSubject && document.getElementById("cform")){ scrollToContact=true; } render(); });
 render();
 </script>

@@ -137,8 +137,9 @@ open(f"{OUT}/404.html", "w", encoding="utf-8").write(html)
 if os.path.exists("admin.html"):
     adm = open("admin.html", encoding="utf-8").read().replace("/*__SHOP__*/null", shop_js)
     open(f"{OUT}/admin.html", "w", encoding="utf-8").write(adm)
-if os.path.exists("CNAME"):
-    shutil.copy("CNAME", f"{OUT}/CNAME")
+for f in ("CNAME", "og-image.jpg"):  # og-image.jpg : aperçu du lien (WhatsApp, Facebook...)
+    if os.path.exists(f):
+        shutil.copy(f, f"{OUT}/{f}")
 print(len(series), "séries,", sum(len(v) for v in galeries.values()), "images")
 
 
